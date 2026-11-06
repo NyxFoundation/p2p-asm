@@ -1,0 +1,17 @@
+NIST CAVS 10.1 RSA public test data provenance
+
+Selected SHA256 records from:
+  SigGen15_186-3.rsp (SigGen PKCS#1 Ver 1.5)
+  SigGenPSS_186-3.rsp (SigGen PKCS#1 RSASSA-PSS, salt length 0)
+Original headers identify CAVS 10.1 and modulus sizes 1024, 1536, 2048, 3072, 4096.
+This distribution retains 2048/3072/4096-bit records and source SHA256 hashes.
+
+Official publisher and program:
+https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/digital-signatures
+
+Immutable mirror used for these public records:
+https://github.com/pyca/cryptography/tree/9f119db1beba2834af325cc631b3d787b895943d/vectors/cryptography_vectors/asymmetric/RSA/FIPS_186-2
+
+No new copyright or certification claim is made for the NIST records.
+The mirror's BSD and Apache license notices are retained alongside this notice
+as pyca-rsa-bsd.txt and pyca-rsa-apache.txt.

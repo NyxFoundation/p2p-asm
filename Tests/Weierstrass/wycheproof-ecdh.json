@@ -1,0 +1,57 @@
+{
+  "source": "C2SP/wycheproof",
+  "commit": "d17cc89fa5c8f4f4d378b5385ebf75da5d0926c9",
+  "source_sha256": "648f16d077caf2400d02331ca51f44744c72c799830c8d0595d0b18b6dd9f886",
+  "tests": [
+    {
+      "publicKey": null,
+      "tcId": 332,
+      "comment": "point is not on curve",
+      "flags": [
+        "InvalidCurveAttack"
+      ],
+      "public": "0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "private": "7e4aa54f714bf01df85c50269bea3a86721f84afe74f7b41ea58abcf3474e88d",
+      "shared": "",
+      "result": "invalid"
+    },
+    {
+      "publicKey": null,
+      "tcId": 348,
+      "comment": "",
+      "flags": [
+        "InvalidEncoding"
+      ],
+      "public": "",
+      "private": "7e4aa54f714bf01df85c50269bea3a86721f84afe74f7b41ea58abcf3474e88d",
+      "shared": "",
+      "result": "invalid"
+    },
+    {
+      "publicKey": null,
+      "tcId": 349,
+      "comment": "invalid public key",
+      "flags": [
+        "InvalidCompressedPublic",
+        "CompressedPoint"
+      ],
+      "public": "02fd4bf61763b46581fd9174d623516cf3c81edd40e29ffa2777fb6cb0ae3ce535",
+      "private": "6f953faff3599e6c762d7f4cabfeed092de2add1df1bc5748c6cbb725cf35458",
+      "shared": "",
+      "result": "invalid"
+    },
+    {
+      "publicKey": null,
+      "tcId": 350,
+      "comment": "public key is a low order point on twist",
+      "flags": [
+        "WrongCurve",
+        "CompressedPoint"
+      ],
+      "public": "03efdde3b32872a9effcf3b94cbf73aa7b39f9683ece9121b9852167f4e3da609b",
+      "private": "00d27edf0ff5b6b6b465753e7158370332c153b468a1be087ad0f490bdb99e5f02",
+      "shared": "",
+      "result": "invalid"
+    }
+  ]
+}

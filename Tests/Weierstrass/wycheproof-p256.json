@@ -1,0 +1,224 @@
+{
+  "source": "C2SP/wycheproof",
+  "commit": "d17cc89fa5c8f4f4d378b5385ebf75da5d0926c9",
+  "source_sha256": "182db4f3e230f6f9fa9f800d2a614dede30284b8e8438bbfe1171905402e9332",
+  "tests": [
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 6,
+      "comment": "Legacy: ASN encoding of s misses leading 0",
+      "flags": [
+        "MissingZero"
+      ],
+      "msg": "313233343030",
+      "sig": "304402202ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e180220b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 8,
+      "comment": "length of sequence [r, s] uses long form encoding",
+      "flags": [
+        "BerEncodedSignature"
+      ],
+      "msg": "313233343030",
+      "sig": "30814502202ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e18022100b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 10,
+      "comment": "length of sequence [r, s] uses 70 instead of 69",
+      "flags": [
+        "InvalidEncoding"
+      ],
+      "msg": "313233343030",
+      "sig": "304602202ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e18022100b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 23,
+      "comment": "appending 0's to sequence [r, s]",
+      "flags": [
+        "ModifiedSignature"
+      ],
+      "msg": "313233343030",
+      "sig": "304702202ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e18022100b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db0000",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 152,
+      "comment": "replaced r by r + n",
+      "flags": [
+        "RangeCheck"
+      ],
+      "msg": "313233343030",
+      "sig": "30460221012ba3a8bd6b94d5ed80a6d9d1190a436ebccc0833490686deac8635bcb9bf5369022100b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 155,
+      "comment": "replaced r by -r",
+      "flags": [
+        "ModifiedInteger"
+      ],
+      "msg": "313233343030",
+      "sig": "30450220d45c5741946b2a137f59262ee6f5bc91001af27a5e1117a64733950642a3d1e8022100b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 158,
+      "comment": "replaced r by r + 2**256",
+      "flags": [
+        "IntegerOverflow"
+      ],
+      "msg": "313233343030",
+      "sig": "30460221012ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e18022100b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 168,
+      "comment": "Signature with special case values r=0 and s=0",
+      "flags": [
+        "InvalidSignature"
+      ],
+      "msg": "313233343030",
+      "sig": "3006020100020100",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "042927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
+        "wx": "2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838",
+        "wy": "00c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e"
+      },
+      "tcId": 232,
+      "comment": "Signature encoding contains incorrect types: r=0, s=0.25",
+      "flags": [
+        "InvalidTypesInSignature"
+      ],
+      "msg": "313233343030",
+      "sig": "3008020100090380fe01",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "040ad99500288d466940031d72a9f5445a4d43784640855bf0a69874d2de5fe103c5011e6ef2c42dcd50d5d3d29f99ae6eba2c80c9244f4c5422f0979ff0c3ba5e",
+        "wx": "0ad99500288d466940031d72a9f5445a4d43784640855bf0a69874d2de5fe103",
+        "wy": "00c5011e6ef2c42dcd50d5d3d29f99ae6eba2c80c9244f4c5422f0979ff0c3ba5e"
+      },
+      "tcId": 351,
+      "comment": "r too large",
+      "flags": [
+        "ArithmeticError"
+      ],
+      "msg": "313233343030",
+      "sig": "3046022100ffffffff00000001000000000000000000000000fffffffffffffffffffffffc022100ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63254e",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "04b533d4695dd5b8c5e07757e55e6e516f7e2c88fa0239e23f60e8ec07dd70f2871b134ee58cc583278456863f33c3a85d881f7d4a39850143e29d4eaf009afe47",
+        "wx": "00b533d4695dd5b8c5e07757e55e6e516f7e2c88fa0239e23f60e8ec07dd70f287",
+        "wy": "1b134ee58cc583278456863f33c3a85d881f7d4a39850143e29d4eaf009afe47"
+      },
+      "tcId": 392,
+      "comment": "point at infinity during verify",
+      "flags": [
+        "PointDuplication",
+        "ArithmeticError"
+      ],
+      "msg": "313233343030",
+      "sig": "304402207fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a80220555555550000000055555555555555553ef7a8e48d07df81a693439654210c70",
+      "result": "invalid"
+    },
+    {
+      "publicKey": {
+        "type": "EcPublicKey",
+        "curve": "secp256r1",
+        "keySize": 256,
+        "uncompressed": "045b812fd521aafa69835a849cce6fbdeb6983b442d2444fe70e134c027fc469637c75bf0c5c9f6d17ffb16d2726bf30a9c7aaf31a8d317472b1ea145ab66db616",
+        "wx": "5b812fd521aafa69835a849cce6fbdeb6983b442d2444fe70e134c027fc46963",
+        "wy": "7c75bf0c5c9f6d17ffb16d2726bf30a9c7aaf31a8d317472b1ea145ab66db616"
+      },
+      "tcId": 428,
+      "comment": "duplication bug",
+      "flags": [
+        "PointDuplication"
+      ],
+      "msg": "313233343030",
+      "sig": "304502206f2347cab7dd76858fe0555ac3bc99048c4aacafdfb6bcbe05ea6c42c4934569022100bb726660235793aa9957a61e76e00c2c435109cf9a15dd624d53f4301047856b",
+      "result": "invalid"
+    }
+  ]
+}

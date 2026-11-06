@@ -1,0 +1,18 @@
+{
+  "multistream": {
+    "repository": "multiformats/multistream-select",
+    "commit": "9a1fbe8edadebea223f47102f1913b8026c23a1c",
+    "file": "README.md"
+  },
+  "libp2p-ping": {
+    "repository": "libp2p/specs",
+    "commit": "c750236de43cd8b246a824b377dfdb26bae686db",
+    "file": "ping/ping.md"
+  },
+  "frames": {
+    "header": "132f6d756c746973747265616d2f312e302e300a",
+    "ping": "112f697066732f70696e672f312e302e300a",
+    "na": "036e610a",
+    "unsupported-listing": "036c730a"
+  }
+}

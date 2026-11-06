@@ -1,0 +1,53 @@
+name = "libp2p-asm"
+version = "0.1.0"
+defaultTargets = ["Libp2pAsm", "libp2p-asm-tests", "libp2p-asm-codegen", "libp2p-asm-isa-probe", "Tests.Axioms"]
+
+[[lean_lib]]
+name = "Libp2pAsm"
+
+[[lean_lib]]
+name = "Tests"
+
+[[lean_exe]]
+name = "libp2p-asm-tests"
+root = "Tests.Main"
+
+[[lean_exe]]
+name = "libp2p-asm-codegen"
+root = "Main"
+
+[[lean_exe]]
+name = "libp2p-asm-isa-probe"
+root = "Tests.Isa.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-aead-probe"
+root = "Tests.Aead.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-hash-probe"
+root = "Tests.HashCrypto.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-sha2-probe"
+root = "Tests.AsmCrypto.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-der-probe"
+root = "Tests.Der.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-weierstrass-probe"
+root = "Tests.Weierstrass.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-identity-probe"
+root = "Tests.Identity.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-time-probe"
+root = "Tests.CertificateTime.Probe"
+
+[[lean_exe]]
+name = "libp2p-asm-algorithms-probe"
+root = "Tests.CertificateAlgorithms.Probe"

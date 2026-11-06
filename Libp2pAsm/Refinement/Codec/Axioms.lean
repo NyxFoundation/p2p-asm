@@ -1,0 +1,52 @@
+import Libp2pAsm.Refinement.Codec.QuicVarint
+import Libp2pAsm.Refinement.Codec.UnsignedVarint
+
+-- Kernel dependency audit for every codec theorem, including all proof helpers.
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.bigEndian_length
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.header_nat
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.decode_fixedWidth
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.fold_value_bound
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.encode_length
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.roundTrip
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.decode_bounds
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.decode_consumed
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.decode_truncated_iff
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.decode_truncated
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.header_width
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.decode_width
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.decode_bounded
+#print axioms Libp2pAsm.Refinement.Codec.QuicVarint.encode_width
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.payload_bound
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_consumption
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_value_bound
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.pow_seven
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_width_bounds
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_width
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_take
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_bounded
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_continuations
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_overflow
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_truncated
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_truncated
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_nonMinimal
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_nonMinimal
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_incomplete
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_incomplete
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.terminal_byte
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.continuation_byte
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.accumulate
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.encodeLoop_step
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.encodeLoop_exists
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decodeLoop_encodeLoop
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.roundTrip
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.encode_width
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.encode_width_iff
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_bounds
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.decode_width_iff
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.encodeLoop_width
+#print axioms Libp2pAsm.Refinement.Codec.UnsignedVarint.minimal_width_unique
+#print axioms Libp2pAsm.Spec.Codec.QuicVarint.decode_cons
+#print axioms Libp2pAsm.Spec.Codec.QuicVarint.encode_overflow
+#print axioms Libp2pAsm.Spec.Codec.QuicVarint.decode_empty
+#print axioms Libp2pAsm.Spec.Codec.UnsignedVarint.encode_overflow
+#print axioms Libp2pAsm.Spec.Codec.UnsignedVarint.decode_empty

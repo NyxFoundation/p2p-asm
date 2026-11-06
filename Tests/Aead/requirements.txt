@@ -1,0 +1,2 @@
+# External oracle, test-only; never imported by production cryptography.
+cryptography==49.0.0

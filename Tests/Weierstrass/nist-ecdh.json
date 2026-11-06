@@ -1,0 +1,31 @@
+{
+  "source": "NIST CAVS 11.0 KASValidityTest_ECCStaticUnified_NOKC_ZZOnly_init.fax",
+  "mirror_commit": "9f119db1beba2834af325cc631b3d787b895943d",
+  "normalized_source_sha256": "c65456047faaab609f4ff8d22906f29f4cbe5b43bab90dbe688a45475a7570d1",
+  "tests": [
+    {
+      "dsCAVS": "20aa736f4eca7e46a852831f08ebeb709154ba5e220a34adda0ec60982c792f6",
+      "QsCAVSx": "5a3955c54a49645ed818f3774ea10971a1db88c370d8966c5a6e88234ed5d820",
+      "QsCAVSy": "03b13f0dad73f64532f42b8b2fa6d1450d9ab24896e95c24674298f2da07ccda",
+      "dsIUT": "8087ab163864bfa81001c72f736b6d94e7612559ac4c847d06ba2171840684d6",
+      "QsIUTx": "e8b020e8c3cc25d3e5e83e76077f3d5ccdabd7ad76121b724a171414e73f793c",
+      "QsIUTy": "98dfb6863fbdbc1d2083f6c41e502645ae9b7a0fdb38904f7483ef883bc2a57b",
+      "Z": "0cb890a0dcc277c3dde0f91b4322a32e6365d7ec85316185d3286b4977849410",
+      "CAVSHashZZ": "7aeedd50a1a808d2cf043ee8c256b12cea34d75a83e02941762fad5dfac64860",
+      "Result": "P (0 - Correct)",
+      "COUNT": 2
+    },
+    {
+      "dsCAVS": "0ced658b6113979f8d05fd7b305ce0b8d70f45034d021b052cbcb318e0cfd602",
+      "QsCAVSx": "acbcb31f5f6798a00f28aa4a634873744768db612925336efca98122a76d1b5e",
+      "QsCAVSy": "7dcefeb3ccb530029a8b62e5a7f00c42fc7ebeac8f469c289ea77b6186d661f0",
+      "dsIUT": "64e23f7a2d279930f1de66b4bc147786b168d059f581268c24f6650362246e63",
+      "QsIUTx": "ba393b401354aa9552c4289b7a55288d97590429a4003913a243081bacf88acf",
+      "QsIUTy": "d089687aa5442684d71b805ea2b36f6c1c783833346dfdd8208768ed2a7e767d",
+      "Z": "f70e4fc9ba68aafe07be1767620e64dd5e5bb7ab279f0657465cddeb69e36fa9",
+      "CAVSHashZZ": "70151b7f062371ac382f51c680f0ce81a66bc2851515c080479fd45cb38458b7",
+      "Result": "P (0 - Correct)",
+      "COUNT": 4
+    }
+  ]
+}

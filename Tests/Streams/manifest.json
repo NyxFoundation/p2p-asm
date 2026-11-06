@@ -1,0 +1,444 @@
+{
+  "abi_version": 1,
+  "endianness": "little",
+  "state_alignment": 8,
+  "stack_alignment": 16,
+  "stack_bytes": 128,
+  "work_bytes": 0,
+  "state_sizes": {
+    "receive": 80,
+    "send": 128,
+    "multistream": 120,
+    "ping": 128,
+    "quota": 16
+  },
+  "layouts": {
+    "receive": [
+      {
+        "offset": 0,
+        "field": "capacity",
+        "type": "u64"
+      },
+      {
+        "offset": 8,
+        "field": "data-base",
+        "type": "u64"
+      },
+      {
+        "offset": 16,
+        "field": "presence-base",
+        "type": "u64"
+      },
+      {
+        "offset": 24,
+        "field": "consumed",
+        "type": "u64"
+      },
+      {
+        "offset": 32,
+        "field": "highest",
+        "type": "u64"
+      },
+      {
+        "offset": 40,
+        "field": "final-or-max-u64",
+        "type": "u64"
+      },
+      {
+        "offset": 48,
+        "field": "stream-limit",
+        "type": "u64"
+      },
+      {
+        "offset": 56,
+        "field": "connection-allowance",
+        "type": "u64"
+      },
+      {
+        "offset": 64,
+        "field": "crypto-mode",
+        "type": "u64"
+      },
+      {
+        "offset": 72,
+        "field": "reset",
+        "type": "u64"
+      }
+    ],
+    "send": [
+      {
+        "offset": 0,
+        "field": "capacity",
+        "type": "u64"
+      },
+      {
+        "offset": 8,
+        "field": "data-base",
+        "type": "u64"
+      },
+      {
+        "offset": 16,
+        "field": "ack-base",
+        "type": "u64"
+      },
+      {
+        "offset": 24,
+        "field": "base",
+        "type": "u64"
+      },
+      {
+        "offset": 32,
+        "field": "queued",
+        "type": "u64"
+      },
+      {
+        "offset": 40,
+        "field": "sent",
+        "type": "u64"
+      },
+      {
+        "offset": 48,
+        "field": "stream-limit",
+        "type": "u64"
+      },
+      {
+        "offset": 56,
+        "field": "connection-allowance",
+        "type": "u64"
+      },
+      {
+        "offset": 64,
+        "field": "final-or-max-u64",
+        "type": "u64"
+      },
+      {
+        "offset": 72,
+        "field": "fin-sent",
+        "type": "u64"
+      },
+      {
+        "offset": 80,
+        "field": "fin-acked",
+        "type": "u64"
+      },
+      {
+        "offset": 88,
+        "field": "reset",
+        "type": "u64"
+      },
+      {
+        "offset": 96,
+        "field": "pending-start",
+        "type": "u64"
+      },
+      {
+        "offset": 104,
+        "field": "pending-length",
+        "type": "u64"
+      },
+      {
+        "offset": 112,
+        "field": "pending-fin",
+        "type": "u64"
+      },
+      {
+        "offset": 120,
+        "field": "pending-active",
+        "type": "u64"
+      }
+    ],
+    "multistream": [
+      {
+        "offset": 0,
+        "field": "message-limit",
+        "type": "u64"
+      },
+      {
+        "offset": 8,
+        "field": "proposal-limit",
+        "type": "u64"
+      },
+      {
+        "offset": 16,
+        "field": "proposals",
+        "type": "u64"
+      },
+      {
+        "offset": 24,
+        "field": "role",
+        "type": "u64"
+      },
+      {
+        "offset": 32,
+        "field": "phase",
+        "type": "u64"
+      },
+      {
+        "offset": 40,
+        "field": "length-accumulator",
+        "type": "u64"
+      },
+      {
+        "offset": 48,
+        "field": "varint-shift",
+        "type": "u64"
+      },
+      {
+        "offset": 56,
+        "field": "payload-remaining",
+        "type": "u64"
+      },
+      {
+        "offset": 64,
+        "field": "payload-position",
+        "type": "u64"
+      },
+      {
+        "offset": 72,
+        "field": "candidate-mask",
+        "type": "u64"
+      },
+      {
+        "offset": 80,
+        "field": "utf8-remaining",
+        "type": "u64"
+      },
+      {
+        "offset": 88,
+        "field": "utf8-low",
+        "type": "u64"
+      },
+      {
+        "offset": 96,
+        "field": "utf8-high",
+        "type": "u64"
+      },
+      {
+        "offset": 104,
+        "field": "payload-mode",
+        "type": "u64"
+      },
+      {
+        "offset": 112,
+        "field": "deadline",
+        "type": "u64"
+      }
+    ],
+    "ping": [
+      {
+        "offset": 0,
+        "field": "role",
+        "type": "u64"
+      },
+      {
+        "offset": 8,
+        "field": "phase",
+        "type": "u64"
+      },
+      {
+        "offset": 16,
+        "field": "received-length",
+        "type": "u64"
+      },
+      {
+        "offset": 24,
+        "field": "deadline",
+        "type": "u64"
+      },
+      {
+        "offset": 32,
+        "field": "gate",
+        "type": "u64"
+      },
+      {
+        "offset": 40,
+        "field": "local-fin",
+        "type": "u64"
+      },
+      {
+        "offset": 48,
+        "field": "remote-fin",
+        "type": "u64"
+      },
+      {
+        "offset": 56,
+        "field": "entropy-token",
+        "type": "u64"
+      }
+    ],
+    "quota": [
+      {
+        "offset": 0,
+        "field": "outbound-count",
+        "type": "u64"
+      },
+      {
+        "offset": 8,
+        "field": "inbound-count",
+        "type": "u64"
+      }
+    ]
+  },
+  "ping_byte_regions": [
+    {
+      "offset": 64,
+      "size": 32,
+      "field": "received"
+    },
+    {
+      "offset": 96,
+      "size": 32,
+      "field": "expected"
+    }
+  ],
+  "source_view_registers": {
+    "a2": "registered-base",
+    "a3": "capacity",
+    "a4": "offset",
+    "a5": "length"
+  },
+  "leaves": {
+    "receive": {
+      "module": "Libp2pAsm.Asm.Stream.Receive",
+      "entry": "Libp2pAsm.Asm.Stream.receive",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "consume": {
+      "module": "Libp2pAsm.Asm.Stream.Receive",
+      "entry": "Libp2pAsm.Asm.Stream.consume",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "peek": {
+      "module": "Libp2pAsm.Asm.Stream.Receive",
+      "entry": "Libp2pAsm.Asm.Stream.peek",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "append": {
+      "module": "Libp2pAsm.Asm.Stream.Send",
+      "entry": "Libp2pAsm.Asm.Stream.append",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "reserve": {
+      "module": "Libp2pAsm.Asm.Stream.Send",
+      "entry": "Libp2pAsm.Asm.Stream.reserve",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "settle": {
+      "module": "Libp2pAsm.Asm.Stream.Send",
+      "entry": "Libp2pAsm.Asm.Stream.settle",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "ack": {
+      "module": "Libp2pAsm.Asm.Stream.Send",
+      "entry": "Libp2pAsm.Asm.Stream.acknowledge",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "stop": {
+      "module": "Libp2pAsm.Asm.Stream.Send",
+      "entry": "Libp2pAsm.Asm.Stream.stop",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "id": {
+      "module": "Libp2pAsm.Asm.Stream.Id",
+      "entry": "Libp2pAsm.Asm.Stream.validateId",
+      "linked_result": false,
+      "stack_bytes": 0
+    },
+    "ordinal": {
+      "module": "Libp2pAsm.Asm.Stream.Id",
+      "entry": "Libp2pAsm.Asm.Stream.ordinal",
+      "linked_result": false,
+      "stack_bytes": 0
+    },
+    "negotiate": {
+      "module": "Libp2pAsm.Asm.Multistream.Negotiation",
+      "entry": "Libp2pAsm.Asm.Multistream.feed",
+      "linked_result": true,
+      "stack_bytes": 128
+    },
+    "neg-emit": {
+      "module": "Libp2pAsm.Asm.Multistream.Framing",
+      "entry": "Libp2pAsm.Asm.Multistream.emit",
+      "linked_result": false,
+      "stack_bytes": 0
+    },
+    "neg-timer": {
+      "module": "Libp2pAsm.Asm.Multistream.Negotiation",
+      "entry": "Libp2pAsm.Asm.Multistream.timer",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "ping-begin": {
+      "module": "Libp2pAsm.Asm.Ping.Protocol",
+      "entry": "Libp2pAsm.Asm.Ping.begin",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "ping-feed": {
+      "module": "Libp2pAsm.Asm.Ping.Protocol",
+      "entry": "Libp2pAsm.Asm.Ping.feed",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "ping-release": {
+      "module": "Libp2pAsm.Asm.Ping.Protocol",
+      "entry": "Libp2pAsm.Asm.Ping.release",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "ping-finish": {
+      "module": "Libp2pAsm.Asm.Ping.Protocol",
+      "entry": "Libp2pAsm.Asm.Ping.finish",
+      "linked_result": false,
+      "stack_bytes": 128
+    },
+    "ping-cancel": {
+      "module": "Libp2pAsm.Asm.Ping.Protocol",
+      "entry": "Libp2pAsm.Asm.Ping.cancel",
+      "linked_result": false,
+      "stack_bytes": 128,
+      "generation_arguments": [
+        "false"
+      ]
+    },
+    "ping-timer": {
+      "module": "Libp2pAsm.Asm.Ping.Protocol",
+      "entry": "Libp2pAsm.Asm.Ping.cancel",
+      "linked_result": false,
+      "stack_bytes": 128,
+      "generation_arguments": [
+        "true"
+      ]
+    },
+    "ping-quota": {
+      "module": "Libp2pAsm.Asm.Ping.Protocol",
+      "entry": "Libp2pAsm.Asm.Ping.quota",
+      "linked_result": false,
+      "stack_bytes": 128
+    }
+  },
+  "caller_obligations": [
+    "mapping-and-permissions",
+    "pairwise-disjointness",
+    "registered-handle-and-generation",
+    "exclusive-state-owner",
+    "immutable-code-and-valid-return",
+    "live-borrow-lifetimes",
+    "packet-authentication",
+    "aggregate-connection-credit",
+    "stream-registry-and-implicit-open",
+    "packet-number-recovery-and-send-results",
+    "entropy-single-use-token",
+    "monotonic-clock-and-timer-generations"
+  ],
+  "contract": "Tests/Streams/README.md",
+  "proof_limits": "No whole-engine refinement, termination/resource, generic constant-time or network interoperability claim."
+}
