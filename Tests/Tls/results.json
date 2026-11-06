@@ -1,0 +1,119 @@
+{
+  "proofs": 36,
+  "unchanged_frozen_files": 3911,
+  "suites": [
+    {
+      "kind": "handshake",
+      "cases": 33,
+      "trace_pairs": 8,
+      "qemu": 82,
+      "instructions": 6211,
+      "sha256": "fca8b84e0bae1a5ef87b0a2ba702f45ad7bbb52a2c0416b7207f3ba4cf1fda52",
+      "artifact_directory": "Tests/Tls/.build/handshake",
+      "max_steps": 384311
+    },
+    {
+      "kind": "application",
+      "cases": 33,
+      "trace_pairs": 8,
+      "qemu": 82,
+      "instructions": 5662,
+      "sha256": "6b40a9d611e91e2751c9d8aebe007ee70570b4fc4c34f9188c517bc641234676",
+      "artifact_directory": "Tests/Tls/.build/application",
+      "max_steps": 117618
+    },
+    {
+      "kind": "finished",
+      "cases": 38,
+      "trace_pairs": 13,
+      "qemu": 102,
+      "instructions": 5584,
+      "sha256": "3b506a0c69d042151072741f3dae7c904b4f4a6dfda57ccbbd41129c7f03a1bf",
+      "artifact_directory": "Tests/Tls/.build/finished",
+      "max_steps": 109746
+    },
+    {
+      "kind": "hash",
+      "cases": 37,
+      "trace_pairs": 19,
+      "qemu": 112,
+      "instructions": 5495,
+      "sha256": "ec976c6f65ec62b7b8294051e9ef1a0e903de99ac3f41b7944e57370bebbbe32",
+      "artifact_directory": "Tests/Tls/.build/hash",
+      "max_steps": 437768
+    },
+    {
+      "kind": "messageHash",
+      "cases": 29,
+      "trace_pairs": 11,
+      "qemu": 80,
+      "instructions": 5503,
+      "sha256": "6d92309f235c23557fb723a81b622d3b7e3a5acd42823d16e0b17d4fcedb21d9",
+      "artifact_directory": "Tests/Tls/.build/messageHash",
+      "max_steps": 437804
+    },
+    {
+      "kind": "decode",
+      "cases": 7171,
+      "trace_pairs": 0,
+      "qemu": 14342,
+      "instructions": 16839,
+      "sha256": "e93690e56fe2d4494e9c4e75af96ea862644beab69a347e08277ae1f71bd3e66",
+      "artifact_directory": "Tests/Tls/.build/final-decode",
+      "max_steps": 253580
+    },
+    {
+      "kind": "encode",
+      "cases": 31,
+      "trace_pairs": 0,
+      "qemu": 62,
+      "instructions": 18116,
+      "sha256": "e4aa845b448b2f540207fa9d08a6d2cfb62f130a507cbc9df6b3f515245d6bd9",
+      "artifact_directory": "Tests/Tls/.build/final-encode",
+      "max_steps": 398733
+    },
+    {
+      "kind": "vector",
+      "cases": 27,
+      "qemu": 54,
+      "instructions": 525,
+      "sha256": "81a9987541a9dbf4fdabf25a525e42674c0685c48975a815861b30fccf0cb32a",
+      "artifact_directory": "Tests/Tls/.build/vector",
+      "trace_pairs": 0,
+      "max_steps": 458955
+    },
+    {
+      "kind": "boundary",
+      "cases": 13,
+      "qemu": 26,
+      "instructions": 53,
+      "sha256": "bc350743926ff690364235212dc5e640670d78e0095210cd05e7240e91ee0089",
+      "artifact_directory": "Tests/Tls/.build/boundary",
+      "trace_pairs": 0,
+      "max_steps": 19
+    },
+    {
+      "kind": "decode",
+      "cases": 35,
+      "trace_pairs": 0,
+      "qemu": 70,
+      "instructions": 16839,
+      "sha256": "e93690e56fe2d4494e9c4e75af96ea862644beab69a347e08277ae1f71bd3e66",
+      "artifact_directory": "Tests/Tls/.build/edge-decode",
+      "max_steps": 216609
+    },
+    {
+      "kind": "encode",
+      "cases": 1,
+      "trace_pairs": 0,
+      "qemu": 2,
+      "instructions": 18116,
+      "sha256": "e4aa845b448b2f540207fa9d08a6d2cfb62f130a507cbc9df6b3f515245d6bd9",
+      "artifact_directory": "Tests/Tls/.build/edge-encode",
+      "max_steps": 1964463
+    }
+  ],
+  "cases": 7448,
+  "trace_pairs": 59,
+  "qemu_runs": 15014
+}

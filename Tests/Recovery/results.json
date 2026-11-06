@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-07",
+  "branch": "feat/crypto-spec",
+  "worktree": "/home/shouki/libp2p-asm-crypto",
+  "transitions": 308,
+  "qemu_executions": 616,
+  "qemu": "11.1.2",
+  "qemu_paths": [
+    "GNU assembly",
+    "direct typed encoding"
+  ],
+  "proof_declarations": 18,
+  "statuses": {
+    "0": 271,
+    "7": 2,
+    "12": 4,
+    "6": 5,
+    "2": 3,
+    "10": 4,
+    "3": 4,
+    "9": 1,
+    "8": 2,
+    "5": 5,
+    "4": 7
+  },
+  "operations": {
+    "init": {
+      "calls": 14,
+      "max_instructions": 167826,
+      "code_sha256": "37f2d57a0dca731ef7d83b904bef199351ee534e5d0125ed97fba5c78d0b2be0"
+    },
+    "keys": {
+      "calls": 25,
+      "max_instructions": 10989,
+      "code_sha256": "b20ac20507918481b60ccd5cfb70e555c5b46bc57db4420a5644541c15467b19"
+    },
+    "reserve": {
+      "calls": 26,
+      "max_instructions": 12835,
+      "code_sha256": "5b1e1b9989b007ff710dfc2969641ea3970dc7ab5c4e0d011e2252460104b44e"
+    },
+    "receive": {
+      "calls": 4,
+      "max_instructions": 10993,
+      "code_sha256": "980fd6eb41303a978c5dcfe2909bc9da7fc2de0e2901462003eff006180f2dfc"
+    },
+    "ack": {
+      "calls": 21,
+      "max_instructions": 13494,
+      "code_sha256": "7a260fd1109d9eb8126bc4474b7429b98f5a90f9cd09ed1a51cb2b128f19b7ac"
+    },
+    "resume": {
+      "calls": 146,
+      "max_instructions": 13949,
+      "code_sha256": "66ae0cfbd9f2dadd9d01ba648d7d1d265abec649249818fdd2fc79c5cea98ff9"
+    },
+    "result": {
+      "calls": 26,
+      "max_instructions": 13888,
+      "code_sha256": "84131681785a1c45a61b61d60438154acbb7efd2370236979e0bc985a9928ed6"
+    },
+    "retry": {
+      "calls": 5,
+      "max_instructions": 11482,
+      "code_sha256": "697406419a2047b28c429bceeb6bbb00d5f33c545a90d6b56b5621f3d36d68f6"
+    },
+    "newpath": {
+      "calls": 2,
+      "max_instructions": 11484,
+      "code_sha256": "4513082ccffd8405c1348732484d70fa8af391b6d4f4a69aa675b5d637fddda3"
+    },
+    "challenge": {
+      "calls": 2,
+      "max_instructions": 11427,
+      "code_sha256": "c3a5d9c0811ca00b1d2421fed93e3b84e0d3a807c4c7c6b6ed09c92f0291c408"
+    },
+    "response": {
+      "calls": 3,
+      "max_instructions": 11416,
+      "code_sha256": "b69121156acdae796dade48f21876755a9041e90c89509a199a8fdc301b40bfd"
+    },
+    "activate": {
+      "calls": 3,
+      "max_instructions": 11425,
+      "code_sha256": "ad02c44fb280cee2c446bd317375095a215d2455d9b799dbe8ad37e7b6c496c1"
+    },
+    "handshake": {
+      "calls": 4,
+      "max_instructions": 11410,
+      "code_sha256": "cfe0dbc62beeddf551da7d57f7a9dfe1305ee738d7ce435888f65dd01600350a"
+    },
+    "timer": {
+      "calls": 16,
+      "max_instructions": 12641,
+      "code_sha256": "4517448daf796f1f80eadf8c1eb6335bdcef8558834f1377c6e7187e046d552a"
+    },
+    "expire": {
+      "calls": 3,
+      "max_instructions": 11863,
+      "code_sha256": "405a34c67becabf41621c603f38c95b611be95343c5543a6f7664dad596423ca"
+    },
+    "loss": {
+      "calls": 1,
+      "max_instructions": 12984,
+      "code_sha256": "673fbda6f0e1630d20666ce72d66d3770cd6a1c10202a23c3162ac19bba9ec9b"
+    },
+    "pto": {
+      "calls": 2,
+      "max_instructions": 13333,
+      "code_sha256": "88cc46bbf9a96c658876a4320cba3e0bc0fa97e74ac31201f988f691427eaaf5"
+    },
+    "discard": {
+      "calls": 1,
+      "max_instructions": 11849,
+      "code_sha256": "adb81883ccb7828e01d1e04d731668a1a7d812010910aa7bb9b527fb933e459c"
+    },
+    "persistent": {
+      "calls": 3,
+      "max_instructions": 13617,
+      "code_sha256": "f48d1c06b4801aa6538ca06751552cab3bad0d68f0fa79b381728717b21a61e6"
+    },
+    "validate": {
+      "calls": 1,
+      "max_instructions": 11419,
+      "code_sha256": "723ff2894f72e298bb8bdc37afc1d16e01a53c0b506701b3f840965af4a0e480"
+    }
+  },
+  "verified": [
+    "Independent Python RFC arithmetic",
+    "Pure Spec vs real RV64IM full snapshots",
+    "Per-access footprints, guards, and exact work wipe",
+    "GNU/direct byte equality and both QEMU paths",
+    "Kernel check and transitive axiom audit"
+  ],
+  "not_claimed": [
+    "Full FSM refinement",
+    "Whole-leaf memory/resource proof",
+    "Universal constant time",
+    "Final core integration"
+  ]
+}

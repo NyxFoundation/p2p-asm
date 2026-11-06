@@ -1,0 +1,45 @@
+{
+  "hacl": {
+    "commit": "f557259007db9933442dde10aa995c1b00bd3446",
+    "files": [
+      {
+        "path": "dist/portable-gcc-compatible/internal/Hacl_Bignum25519_51.h",
+        "git_blob": "f176ed3d952e0e3ef74768e673ec564a0cf13ff1",
+        "sha256": "adb110a76405630a77e999bdf99453b5fb4ede13f67c4135c457274c2c0f1237"
+      },
+      {
+        "path": "dist/portable-gcc-compatible/Hacl_Curve25519_51.c",
+        "git_blob": "3f25dddf9facbbae10a9ede99e92a0bf117a3f38",
+        "sha256": "6c6ea8dcaa0e25fbbebcc1236aa7564b65c0dbaa44f601f36ce4872ae7a52506"
+      },
+      {
+        "path": "dist/portable-gcc-compatible/Hacl_Ed25519.c",
+        "git_blob": "224a523a65b902fbd69eca356e6733b3ac872377",
+        "sha256": "691bf2f3f8bed56a75d06d01e645d460807d4b71e91bd8dc1e83c747208713d8"
+      }
+    ]
+  },
+  "wycheproof": {
+    "commit": "5722833ca004983abd1a91bcb6c24596d50ac0f9",
+    "files": [
+      {
+        "path": "testvectors_v1/ed25519_test.json",
+        "git_blob": "42d44cd7eca6003c7de611b6487c9cc57a124b38"
+      },
+      {
+        "path": "testvectors_v1/x25519_test.json",
+        "git_blob": "1ffa8e68f2c11a321376cda748a48ed0d85f5beb"
+      }
+    ],
+    "selected_sha256": "69f16348a491a42f5cca3d14c0c1ca0913b4a78fbf2a7ccde52b0ed2dd0421ae"
+  },
+  "normative": [
+    "https://www.rfc-editor.org/rfc/rfc7748.txt",
+    "https://www.rfc-editor.org/rfc/rfc8032.txt"
+  ],
+  "oracle": {
+    "package": "cryptography",
+    "version": "49.0.0",
+    "scope": "test-only; never linked into emitted RV64 code"
+  }
+}
