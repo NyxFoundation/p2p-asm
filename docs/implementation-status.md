@@ -46,7 +46,30 @@ tags:
 | 切り詰めUDPの有用部分も受け入れるべき | 不採用。欠損データは全体をdropし、損失回復はQUICが担う |
 | AES-256-GCM、ChaCha20、X25519、P-384をMUSTとすべき | 不採用。RFC 8446 §9.1で前三者はSHOULD、P-384はMUSTではない |
 
-予算消費後も残る実装上の未達は、接続状態機械、証明書認証の統合、資源カーネル、回復処理の接続統合、ASM核による相互運用、全体のrefinement・資源・定数時間性証明である。
+証明書認証の統合は完了した（`Spec/Identity.Certificate` が `Spec/Connection.Tls` の
+ClientHello／ServerHello 双方の認証と CertificateVerify 照合で動作する）。
+接続状態機械も完了した（次節）。予算消費後も残る実装上の未達は、資源カーネルの
+統合、回復処理の接続統合、ASM核による相互運用、全体のrefinement・資源・定数時間性
+証明である。
+
+## 接続状態機械（2026-11-07完了）
+
+`Spec/Connection.Basic`、`Spec/Connection.Tls`、`Spec/Connection.Conn` を追加した。
+
+- 3パケット番号空間（Initial／Handshake／Application）、鍵フェーズ更新、
+  ACK台帳、ACK以外受信の抑制、重複パケットの合併。
+- TLS: ClientHello／ServerHello、EncryptedExtensions、CertificateRequest、
+  Certificate、双方のCertificateVerify（役割文脈を含む）、 Finished、
+  application secret導出（ServerFinishedまでのtranscript hash）、
+  libp2p証明書の自己署名・ホスト署名・Peer ID照合、HRR書き換え。
+- QUIC: datagramの併合読み取り、Initial 1200バイト詰め（varint幅成長を含む）、
+  変換保護、HP mask、PN再構築、HANDSHAKE_DONE、PATH CHALLENGE/RESPONSE、
+  PADDING最小長（HPサンプル要件）、stream frameのFIN/OFF/LENの正確な解釈。
+- イベントループ: dial/listener、entropy要求、send結果、受信、クロック、
+  ping、close。multistreamの順方向交渉（header→proposal→selected）、
+  ping往復、資源上限の適用。
+- ループバック試験（`Tests/Connection/Loopback.lean`）: 相互認証、確認、収束、
+  ping往復、静穏化を1シナリオで検証。`Tests/Main.lean` で全体81 PASS。
 
 ## 並列作業員の状況
 
