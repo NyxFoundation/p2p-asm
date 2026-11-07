@@ -13,6 +13,7 @@ import Tests.Machine
 import Tests.Limits
 import Tests.Clock
 import Tests.ClockAsm
+import Tests.Connection
 
 open Libp2pAsm.Rv64
 
@@ -83,3 +84,4 @@ def main : IO Unit := do
   Libp2pAsm.Tests.AsmCodec.run
   Libp2pAsm.Tests.Buffer.run
   Libp2pAsm.Tests.Crypto.run
+  Libp2pAsm.Tests.Connection.run

@@ -52,6 +52,14 @@ import Libp2pAsm.Refinement.Crypto.RSA.Encoding
 import Libp2pAsm.Refinement.Crypto.RSA.Limbs
 import Libp2pAsm.Asm.Identity.X509.Algorithm
 import Libp2pAsm.Spec.Identity.X509.Certificate
+import Libp2pAsm.Spec.Tls.Basic
+import Libp2pAsm.Spec.Tls.Cursor
+import Libp2pAsm.Spec.Tls.Codec
+import Libp2pAsm.Spec.Tls.Extensions
+import Libp2pAsm.Spec.Tls.Encode
+import Libp2pAsm.Spec.Tls.Schedule
+import Libp2pAsm.Spec.Tls.View
+import Libp2pAsm.Spec.Tls.Bounds
 import Libp2pAsm.Asm.Tls.Codec
 import Libp2pAsm.Asm.Tls.Encode
 import Libp2pAsm.Asm.Tls.Schedule
@@ -116,3 +124,6 @@ import Libp2pAsm.Asm.Kernel.Integration
 import Libp2pAsm.Refinement.Registers
 import Libp2pAsm.Refinement.Kernel.Invariants
 import Libp2pAsm.Refinement.Kernel.Machine
+import Libp2pAsm.Spec.Connection.Basic
+import Libp2pAsm.Spec.Connection.Tls
+import Libp2pAsm.Spec.Connection.Conn
