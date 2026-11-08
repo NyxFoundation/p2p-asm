@@ -48,9 +48,12 @@ tags:
 
 証明書認証の統合は完了した（`Spec/Identity.Certificate` が `Spec/Connection.Tls` の
 ClientHello／ServerHello 双方の認証と CertificateVerify 照合で動作する）。
-接続状態機械も完了した（次節）。予算消費後も残る実装上の未達は、資源カーネルの
-統合、回復処理の接続統合、ASM核による相互運用、全体のrefinement・資源・定数時間性
-証明である。
+接続状態機械も完了した（次節）。損失回復の接続統合も完了した（`Spec.Quic.Recovery`
+の reserve/successful/beginAck/resume/-beginLoss-beginDiscard-discardOne/timer/firePto
+が `Conn` の emit・ACK・タイマー経路を権威として駆動する。RTT標本・輻輳窓・増幅制限・
+鍵破棄も接続を通じて動作する）。予算消費後も残る実装上の未達は、資源カーネルの
+統合、ASM核による相互運用、全体のrefinement・資源・定数時間性証明である。
+なお Recovery 台帳の保持上限（history 枠の解放）は長寿命接続での未達として残す。
 
 ## 接続状態機械（2026-11-07完了）
 

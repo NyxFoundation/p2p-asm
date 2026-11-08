@@ -6,6 +6,9 @@ import Libp2pAsm.Spec.Ping.Protocol
 import Libp2pAsm.Spec.Ping.Lifecycle
 import Libp2pAsm.Spec.Codec.QuicVarint
 import Libp2pAsm.Spec.Quic.Wire.Batch
+import Libp2pAsm.Spec.Quic.Recovery.Send
+import Libp2pAsm.Spec.Quic.Recovery.Ack
+import Libp2pAsm.Spec.Quic.Recovery.Path
 import Libp2pAsm.Spec.Identity.Certificate.Issue
 
 /-! Connection core, spec layer: one connection's event-driven step.
@@ -17,6 +20,22 @@ Resource admission, quotas and instruction accounting belong to the kernel
 resource routines; this module carries the protocol state only. -/
 
 namespace Libp2pAsm.Spec.Connection
+
+/-- Local policy to the loss-recovery contract. Every field takes a finite
+caller limit; the recovery's own validity predicate re-checks the combination. -/
+def recoveryConfig (l : Limits) : Spec.Quic.Recovery.Config := {
+  history := l.maxSentPackets
+  paths := max l.maxPathsPerConnection 1
+  ranges := max l.maxAckRanges 1
+  pending := min l.maxPacketsPerQuantum l.maxSentPackets
+  live := l.maxSentPackets
+  attempts := max l.maxSendAttempts 1
+  waitNs := l.maxSendWaitNs
+  datagram := maxDatagram
+  quantum := max l.maxInstructionsPerQuantum 1000000
+  exponent := 3
+  maxAckDelayNs := 25000000
+}
 
 /-- Timer identifiers used by this core. -/
 def timerIdle : Nat := 0
@@ -94,8 +113,6 @@ structure Conn where
   now : Nat := 0
   idleDeadline : Nat := 0
   handshakeDeadline : Nat := 0
-  lossAt : Nat := 0
-  lossCount : Nat := 0
   tls : Tls := {}
   spaces : Spaces := {}
   inInitial : CryptoIn := {}
@@ -113,6 +130,10 @@ structure Conn where
   pendingSends : List (Nat × List UInt8) := []
   pathResponse : Option (List UInt8) := none
   doneSent : Bool := false
+  recovery : Spec.Quic.Recovery.State :=
+    {config := recoveryConfig {}, generation := 1, slot := 0, now := 0,
+      paths := (Array.replicate (max (Limits.maxPathsPerConnection {}) 1) {}).set! 0
+        (Spec.Quic.Recovery.pathInitial 1 maxDatagram 0)}
   deriving Repr
 
 def inOf (c : Conn) (level : Level) : CryptoIn :=
@@ -233,6 +254,20 @@ def armServerInitial (c : Conn) (keyDcid : List UInt8) : Except Error Conn :=
       .ok conn
   | .error _ => .error .keys
 
+/-- Run a recovery batch (validation, acknowledgment, loss, discard) to its
+phase-0 quiescence. Every resume consumes ledger steps and the walk is bounded
+by the packet history, so bounded fuel prevents any unbounded loop. -/
+def resumeBatch (s : Spec.Quic.Recovery.State) : Spec.Quic.Recovery.State :=
+  Id.run do
+    let mut state := s
+    let mut fuel := s.packets.size * 4 + 16
+    while state.batch.phase != 0 && fuel > 0 do
+      fuel := fuel - 1
+      match Spec.Quic.Recovery.resume state state.generation with
+      | .ok (next, _) => state := next
+      | .error _ => pure ()
+    return state
+
 /-- Install handshake and application keys from the TLS schedule. -/
 def armHandshake (c : Conn) : Except Error Conn := do
   let some hs := c.tls.handshake | throw .keys
@@ -254,7 +289,9 @@ def armHandshake (c : Conn) : Except Error Conn := do
       application := c.spaces.application
     }
   }
-  return conn
+  match Spec.Quic.Recovery.installKeys conn.recovery conn.now 1 with
+  | .ok (recovery, _) => .ok {conn with recovery}
+  | .error e => throw (Error.coded (38000 + Spec.Quic.Recovery.Error.code e))
 
 def armApplication (c : Conn) : Except Error Conn := do
   let some cApp := c.tls.clientApp | throw .keys
@@ -277,7 +314,15 @@ def armApplication (c : Conn) : Except Error Conn := do
       application := space
     }
   }
-  return conn
+  -- install the application keys in the recovery ledger, then discard the
+  -- Initial space: RFC 9002 §4.9.1 drops Initial keys as soon as the
+  -- handshake completes
+  match Spec.Quic.Recovery.installKeys conn.recovery conn.now 2 with
+  | .ok (recovery, _) =>
+    match Spec.Quic.Recovery.beginDiscard recovery conn.now 0 with
+    | .ok (st, _) => .ok {conn with recovery := resumeBatch st}
+    | .error _ => .ok {conn with recovery}
+  | .error e => throw (Error.coded (38000 + Spec.Quic.Recovery.Error.code e))
 
 /-- Reassemble one incoming key-phase update: `update` emits next secret
 (32) || key (16) || IV (12) with the HP key intentionally unchanged, so the
@@ -356,6 +401,8 @@ structure Draft where
   streams : List (Nat × Nat × Nat × Bool) := []
   ackIncluded : Bool := false
   padTo : Nat := 0
+  -- Only ACK and PADDING bytes are not ack-eliciting (RFC 9002 6.2).
+  eliciting : Bool := false
   deriving Repr, Inhabited
 
 /-- AEAD tag placeholder counted in the QUIC length field before protection. -/
@@ -446,6 +493,31 @@ def draftRawLength (c : Conn) (d : Draft) : Except Error Nat := do
 the QUIC length field equal to pn plus the ciphertext while the real
 plaintext rides inside the envelope; `padTo > 0` appends exactly enough
 PADDING so the sealed length reaches the target. -/
+private def padPlainTo (c : Conn) (level : Level) (plain : List UInt8) (pnLen : Nat) (truncated : Nat) (target : Nat) : Except Error (List UInt8) := do
+  match encodePlain c level (plain ++ tagPlaceholder) pnLen truncated with
+  | .error _ => throw .limit
+  | .ok initial =>
+    if target == 0 || initial.length >= target then .ok plain
+    else
+      let plain' : Except Error (List UInt8) := Id.run do
+        let mut plainSoFar := plain
+        let mut pad := target - initial.length
+        for _ in [0:5] do
+          match encodePlain c level (plainSoFar ++ paddingFrames pad ++ tagPlaceholder)
+              pnLen truncated with
+          | .error _ =>
+            -- the encoder refused the length: shrink a padding byte and retry
+            if pad == 0 then return .ok plainSoFar
+            pad := pad - 1
+          | .ok raw =>
+            if raw.length == target then return .ok (plainSoFar ++ paddingFrames pad)
+            if raw.length > target then
+              if pad == 0 then return .ok plainSoFar
+              pad := pad - (raw.length - target)
+            else
+              pad := pad + (target - raw.length)
+        return .ok (plainSoFar ++ paddingFrames pad)
+      plain'
 def protectDraft (c : Conn) (d : Draft) : Except Error (List UInt8 × Draft) := do
   let space := spaceOf c d.level
   match space.key with
@@ -454,20 +526,11 @@ def protectDraft (c : Conn) (d : Draft) : Except Error (List UInt8 × Draft) := 
     let pnLen := pnWidth space
     -- A length-field varint that widens as padding crosses a size class would
     -- otherwise overshoot the datagram bound; home in on the exact target with
-    -- a bounded fixpoint: pad, re-encode, and stop once the length stops shrinking.
+    -- a bounded fixpoint: pad, re-encode and correct both directions. If the
+    -- encoder refuses a length past the datagram bound, shrink one byte first.
     -- The header-protection mask samples 16 ciphertext bytes, so the sealed span
     -- must fit at least `headerLength + 4` input bytes; pad short ACK-only drafts.
-    let plain <-
-      if d.padTo == 0 then .ok d.plain
-      else
-        (List.range 4).foldlM (fun (plainSoFar : List UInt8) (_ : Nat) =>
-          match encodePlain c d.level (plainSoFar ++ tagPlaceholder) pnLen
-              (d.number % 256^pnLen) with
-          | .error _ => throw .limit
-          | .ok raw =>
-            if raw.length >= d.padTo then .ok plainSoFar
-            else .ok (plainSoFar ++ paddingFrames (d.padTo - raw.length)))
-          d.plain
+    let plain ← padPlainTo c d.level d.plain pnLen (d.number % 256^pnLen) d.padTo
     let paddedPlain : List UInt8 :=
       let minPlain := 4 - pnLen
       if plain.length < minPlain then plain ++ paddingFrames (minPlain - plain.length)
@@ -488,7 +551,18 @@ structure DraftBundle where
   level : Level
   draft : Draft
   reserved : List (StreamEntry × Spec.Stream.Range)
-  deriving Repr, Inhabited
+  -- the crypto stream state, sent log and application-level annotations taken
+  -- just before this level's fill consumed them; a refused recovery
+  -- reservation restores exactly these, keeping the recovery ledger
+  savedOut : CryptoOut
+  savedLog : List UInt8
+  savedDone : Bool := false
+  savedPath : Option (List UInt8) := none
+
+instance : Inhabited DraftBundle where
+  default :=
+    {level := .initial, draft := {level := .initial, plain := []}, reserved := [],
+      savedOut := {}, savedLog := [], savedDone := false, savedPath := none}
 
 /-- Fill one level's packet body with ACK, CRYPTO and control frames within
 `budget` payload bytes; stream frames at the application level only. Stream
@@ -571,6 +645,7 @@ def fillDraft (c : Conn) (level : Level) (budget extra : Nat) :
   if extra > 0 then
     body := body ++ paddingFrames extra
   let d : Draft := Draft.mk level body 0 0 cryptoPieces streamPieces ackIncluded 0
+    (!(cryptoPieces.isEmpty && streamPieces.isEmpty))
   pure (state, d, reserved)
 
 /-- Unwind reservations when a round aborts before protection succeeds. -/
@@ -603,13 +678,36 @@ def settleReservations (c : Conn)
         | .error _ => e)
     return {c with streams := updated}
 
-/-- Protect a single bundle: fresh packet number from the level space, commit
-the reservation and the space bookkeeping. Failure leaves the level space
-untouched and the caller releases its reservations. -/
-def protectBundle (c : Conn) (b : DraftBundle) :
+/-- Register one outgoing packet with the loss-recovery ledger. The packet
+number is allocated by the recovery (the QUIC pn of the connection's space),
+then marked sent immediately: the host contract of this event loop completes
+sends synchronously before returning. `none` means the reservation was blocked
+(amplification bound, congestion window or ledger occupancy) and the caller
+must not send this draft — releasing any stream reservations first. -/
+def registerOutgoing (c : Conn) (level : Level) (bytes : Nat) (eliciting : Bool)
+    (probe : Bool) : Except Error (Option (Conn × Nat)) := do
+  match Spec.Quic.Recovery.reserve c.recovery c.now
+      {space := level.codeOf, path := 0, bytes := bytes, inFlight := eliciting,
+        eliciting := eliciting, frames := 0, frameGeneration := 0, buffer := 0,
+        bufferGeneration := 0, probe := probe} with
+  | .error .blocked => .ok none
+  | .error e => throw (Error.coded (36000 + Spec.Quic.Recovery.Error.code e))
+  | .ok (reserved, act) =>
+    let i := reserved.packets.size - 1
+    match reserved.packets[i]? with
+    | .none => throw (Error.coded 36001)
+    | .some pkt =>
+      match Spec.Quic.Recovery.successful reserved i c.now c.now pkt with
+      | .error e => throw (Error.coded (37000 + Spec.Quic.Recovery.Error.code e))
+      | .ok (sent, _) =>
+        let sp := (spaceOf c level)
+        let conn := setSpaceOf c level {sp with next := act.pn + 1}
+        .ok (some ({conn with recovery := sent}, act.pn))
+
+/-- Protect one bundle with the packet number the recovery allocated. -/
+def protectBundle (c : Conn) (b : DraftBundle) (number : Nat) :
     Except Error (Conn × List UInt8) := do
   let space := spaceOf c b.level
-  let number := space.next
   let (sealedBytes, sealed) ← protectDraft c {b.draft with number := number}
   let committed ← settleReservations c b.reserved
   let space' := spaceOf committed b.level
@@ -654,12 +752,17 @@ def emitRound (c : Conn) : Except Error (Conn × List Action) := do
   for level in levelOrder do
     if levelPending state level && wireSoFar bundles + 40 ≤ maxDatagram then
       let payloadBudget := maxDatagram - wireSoFar bundles - 40
+      let savedOut := outOf state level
+      let savedLog := logOf state level
+      let savedDone := state.doneSent
+      let savedPath := state.pathResponse
       let (s, d, rs) ← fillDraft state level payloadBudget 0
       if d.plain.isEmpty && !d.ackIncluded then
         state := releaseReservations s rs
       else
         state := s
-        bundles := bundles ++ [{level := level, draft := d, reserved := rs}]
+        let entry : DraftBundle := {level := level, draft := d, reserved := rs, savedOut := savedOut, savedLog := savedLog, savedDone := savedDone, savedPath := savedPath}
+        bundles := bundles ++ [entry]
         if level == .initial then hasInitial := true
   if bundles.isEmpty then return (state, [])
   let mut wire : List UInt8 := []
@@ -673,9 +776,19 @@ def emitRound (c : Conn) : Except Error (Conn × List Action) := do
     let prepared : DraftBundle := {b with draft := {b.draft with padTo := padTo}}
     let sealedLen := if padTo > 0 then padTo else rawLen
     if wire.length + sealedLen ≤ maxDatagram then
-      let (s, bytes) ← protectBundle state2 prepared
-      state2 := s
-      wire := if wire.isEmpty then bytes else wire ++ bytes
+      match ← registerOutgoing state2 b.level rawLen b.draft.eliciting false with
+      | .none =>
+        -- refused by the recovery ledger: return the consumed crypto bytes,
+        -- trim the sent log and restore the stream reservations so the refill
+        -- can happen once the pacer allows; the recovery ledger is untouched
+        state2 := setOutOf state2 b.level b.savedOut
+        state2 := setLogOf state2 b.level b.savedLog
+        state2 := {state2 with doneSent := b.savedDone, pathResponse := b.savedPath}
+        state2 := releaseReservations state2 prepared.reserved
+      | .some (registered, pn) =>
+        let (s, bytes) ← protectBundle registered prepared pn
+        state2 := s
+        wire := if wire.isEmpty then bytes else wire ++ bytes
     else
       state2 := releaseReservations state2 prepared.reserved
   if wire.isEmpty then return (state2, [])
@@ -769,6 +882,12 @@ def feedTls (c : Conn) : Except Error (Conn × List Action) := do
     -- the server's handshake completes with its own HANDSHAKE_DONE emission
     state := {state with confirmed := true}
     state := {state with peerValidated := true}
+    match Spec.Quic.Recovery.handshake state.recovery state.now true true true with
+    | .ok (r, _) => state := {state with recovery := r}
+    | .error _ => pure ()
+    match Spec.Quic.Recovery.validatePath state.recovery state.now 0 1 with
+    | .ok (r, _) => state := {state with recovery := r}
+    | .error _ => pure ()
   return (state, actions)
 
 /-- Open the ping negotiation stream as the dialer once the handshake is
@@ -1037,6 +1156,23 @@ def applyAck (c : Conn) (level : Level) (ranges : List (Nat × Nat)) :
   -- An ACK of a handshake or 1-RTT packet we sent confirms the peer's address.
   if state.role == .client && level != .initial && !covered.isEmpty then
     state := {state with peerValidated := true}
+    match Spec.Quic.Recovery.validatePath state.recovery state.now 0 1 with
+    | .ok (r, _) => state := {state with recovery := r}
+    | .error _ => pure ()
+  -- the loss-recovery ledger receives the same ranges (descending, lo ≤ hi),
+  -- and its resumable batch runs to quiescence in this event
+  let pairs := (ranges.filter (fun (_, count) => 0 < count)).map
+    fun (start, count) => {lo := start, hi := start + count - 1}
+  let recRanges : Array Spec.Quic.Recovery.AckRange := Id.run do
+    let mut acc : Array Spec.Quic.Recovery.AckRange := #[]
+    for r in pairs do
+      acc := acc.push r
+    return acc
+  if !recRanges.isEmpty then
+    match Spec.Quic.Recovery.beginAck state.recovery state.now level.codeOf 0
+        recRanges with
+    | .ok (st, _) => state := {state with recovery := resumeBatch st}
+    | .error _ => pure ()
   return state
 
 /-- Frame walk tolerant of trailing PADDING: parse frames from the front; when
@@ -1105,7 +1241,11 @@ def processFrames (c : Conn) (level : Level) (payload : Array UInt8)
       | .ok inserted => state := setInOf state level inserted
       | .error e2 => throw (Error.coded (47000 + Error.code e2))
     | .ack a =>
-      let first : List (Nat × Nat) := [(a.largest - a.firstRange, a.firstRange + 1)]
+      -- The ACK frame's first range covers exactly `firstRange` packet numbers
+      -- ending at `largest` (RFC 9000 §19.2); one-byte ranges start at zero.
+      let first : List (Nat × Nat) :=
+        if a.firstRange == 0 then [] else
+        [(a.largest + 1 - a.firstRange, a.firstRange)]
       let rest := a.ranges.map (fun r => (r.low, r.high - r.low + 1))
       let _ := a.encodedRanges
       if !ackWithinHistory (spaceOf state level) a.largest then throw (.coded (50301 : Nat))
@@ -1171,6 +1311,11 @@ def processFrames (c : Conn) (level : Level) (payload : Array UInt8)
     | .handshakeDone =>
       if state.role == .client && !state.confirmed then
         state := {state with confirmed := true, peerValidated := true}
+        -- the recovery marks the handshake complete for both directions: its
+        -- Application-space timer gate and ack-delay open up from here
+        match Spec.Quic.Recovery.handshake state.recovery state.now true true true with
+        | .ok (r, _) => state := {state with recovery := r}
+        | .error _ => pure ()
         let openedStream ← openPingStream state
         state := openedStream
         actions := actions ++ [Action.confirmed]
@@ -1285,7 +1430,11 @@ def onPacket (c : Conn) (packet : Spec.Quic.Wire.Packet)
       let space := spaceOf keyedConn level
       match kindLevel packet.kind with
       | .error _ => pure () -- version negotiation / retry: no protected payload
-      | .ok _ => if space.peerKey.isNone then throw (.coded 41001)
+      | .ok _ =>
+        -- RFC 9001 §5.5: a protected packet whose keys are not yet disclosed
+        -- cannot be authenticated and is simply discarded
+        if space.peerKey.isNone then
+          return (c, [])
       let decrypted ← decryptPacket keyedConn space level packet bytes pos
       match decrypted with
       | none => .ok (c, []) -- unauthenticated bytes are dropped, never fatal
@@ -1312,6 +1461,10 @@ def onDatagram (c : Conn) (bytes : List UInt8) (now : Nat) :
   if c.closedAt.isSome then return (c, [])
   if bytes.length > maxDatagram then return (c, [])
   let mut state := setClock c now
+  -- every received datagram counts against the peer's amplification budget
+  match Spec.Quic.Recovery.receiveBytes state.recovery state.now 0 bytes.length with
+  | .ok (rcv, _) => state := {state with recovery := rcv}
+  | .error _ => pure ()
   if state.role == .server && !state.peerValidated then
     state := {state with unvalidatedRx := state.unvalidatedRx + bytes.length}
   let shortLength := state.scid.length
@@ -1329,71 +1482,57 @@ def onDatagram (c : Conn) (bytes : List UInt8) (now : Nat) :
     let (final, more) ← advance state
     return (final, actions ++ more)
 
-/-- Loss timing: RFC 9002 initial RTT with doubling backoff, bounded at 2^10
-per connection. This profile samples no RTT; the recovery leaves refine the
-full timing math (see Tests/Recovery). -/
-def ptoInterval (c : Conn) : Nat :=
-  (353000000 : Nat) * 2^(min c.lossCount 10)
-
-/-- PTO probe: repacketize the crypto ranges and stream payloads of the oldest
-unacked record per level with fresh packet numbers, coalesced into datagrams.
-Crypto bytes come from the sent log; stream payloads re-reserve from the
-immutable send state. Raw ciphertext is never reused. -/
-def stepPto (c : Conn) : Except Error (Conn × List Action) := do
+/-- Repacketize the oldest unacked record of one level with a fresh packet
+number: crypto ranges come from the sent log, stream payloads re-reserve from
+the immutable send state, and an empty body degrades to a PING probe. Raw
+ciphertext is never reused. The caller decides when the recovery wants this
+level's re-send (time-threshold loss or expiry threshold). -/
+def reemitLevel (c : Conn) (level : Level) :
+    Except Error (Conn × List Action) := do
   if c.closedAt.isSome then return (c, [])
-  let mut state := c
-  let mut wire : List UInt8 := []
-  let mut due := false
-  for level in levelOrder do
-    let space := spaceOf state level
-    match space.unacked with
-    | oldest :: _ =>
-      unless state.now < oldest.sentAt + ptoInterval state do
-        due := true
-        let log := logOf state level
-        let mut body : List UInt8 := []
-        for (start, len) in oldest.crypto do
-          match cryptoFrame start (log.drop start |>.take len) with
-          | .ok f => body := body ++ f
+  let space := spaceOf c level
+  match space.unacked with
+  | oldest :: _ =>
+    let log := logOf c level
+    let mut state := c
+    let mut body : List UInt8 := []
+    let mut cryptoPieces : List (Nat × Nat) := []
+    for (start, len) in oldest.crypto do
+      match cryptoFrame start (log.drop start |>.take len) with
+      | .ok f => body := body ++ f
+      | .error _ => pure ()
+      cryptoPieces := cryptoPieces ++ [(start, len)]
+    let mut reserved : List (StreamEntry × Spec.Stream.Range) := []
+    for (id, start, len, fin) in oldest.streams do
+      match state.streams.find? (fun e => e.id == id) with
+      | some entry =>
+        if entry.send.pending.isNone then
+          match Spec.Stream.Send.reserve entry.send
+              {start := start, length := len, fin := fin} with
+          | .ok (send', _) =>
+            let bytes := (entry.send.data.drop (start - entry.send.base)).take len
+            body := body ++ (← streamFrame id start fin bytes)
+            let committed := {entry with send := send'}
+            reserved := (committed, {start := start, length := len, fin := fin}) :: reserved
+            state := {state with streams := state.streams.map (fun e =>
+              if e.id == id then committed else e)}
           | .error _ => pure ()
-        let mut reserved : List (StreamEntry × Spec.Stream.Range) := []
-        for (id, start, len, fin) in oldest.streams do
-          match state.streams.find? (fun e => e.id == id) with
-          | some entry =>
-            if entry.send.pending.isNone then
-              match Spec.Stream.Send.reserve entry.send
-                  {start := start, length := len, fin := fin} with
-              | .ok (send', _) =>
-                let bytes := (entry.send.data.drop (start - entry.send.base)).take len
-                body := body ++ (← streamFrame id start fin bytes)
-                let committed := {entry with send := send'}
-                reserved := (committed, {start := start, length := len, fin := fin}) :: reserved
-                state := {state with streams := state.streams.map (fun e =>
-                  if e.id == id then committed else e)}
-              | .error _ => pure ()
-          | none => pure ()
-        if body.isEmpty then
-          -- only acks pending? send a plain ack-eliciting probe
-          body := pingFrame
-        let draft : Draft := Draft.mk level body 0 0 oldest.crypto (oldest.streams.map (fun (i, s, l, f) => (i, s, l, f))) false 0
-        if wire.length + 40 + draft.plain.length ≤ maxDatagram then
-          let bundle : DraftBundle := {level := level, draft := draft, reserved := reserved}
-          let (committed, bytes) ← protectBundle state bundle
-          wire := if wire.isEmpty then bytes else wire ++ bytes
-          state := {committed with lossCount := state.lossCount + 1, lossAt := committed.now + ptoInterval committed}
-        else
-          state := releaseReservations state reserved
-    | [] => pure ()
-  if !due || wire.isEmpty then return (state, [])
-  return (state, [Action.sendDatagram wire])
-
-/-- The number of bytes before which this connection may not send to an
-unvalidated peer. -/
-def amplificationBudget (c : Conn) : Nat :=
-  if c.role == .server && !c.peerValidated then
-    let cap := 3 * c.unvalidatedRx
-    cap - (min cap c.unvalidatedTx)
-  else maxDatagram
+      | none => pure ()
+    if body.isEmpty then
+      body := pingFrame
+      cryptoPieces := []
+    let draft : Draft := Draft.mk level body 0 0 cryptoPieces
+      (oldest.streams.map (fun (i, s, l, f) => (i, s, l, f))) false 0 True
+    let rawLen ← draftRawLength state {draft with number := 0}
+    if rawLen > maxDatagram then
+      return (releaseReservations state reserved, [])
+    match ← registerOutgoing state level rawLen draft.eliciting false with
+    | .none => return (releaseReservations state reserved, [])
+    | .some (registered, pn) =>
+      let bundle : DraftBundle := {level := level, draft := draft, reserved := reserved, savedOut := {}, savedLog := [], savedDone := false, savedPath := none}
+      let (committed, bytes) ← protectBundle registered bundle pn
+      return (committed, [Action.sendDatagram bytes])
+  | [] => return (c, [])
 
 /-- The listener's bootstrap step: request entropy for random, certificate
 seed and X25519 secret. The runtime calls this once per admitted connection. -/
@@ -1402,6 +1541,9 @@ def listenerStart (c : Conn) : Except Error (Conn × List Action) := do
   if c.closedAt.isSome || c.entropyOutstanding then throw .busy
   let freshConn : Conn := {
     c with
+    recovery := match Spec.Quic.Recovery.init (recoveryConfig c.limits) 1 0 c.now true with
+      | .ok r => r
+      | .error _ => c.recovery,
     entropyOutstanding := true
     entropyRequestId := c.entropyRequestId + 1
     handshakeDeadline := c.now + c.limits.handshakeTimeoutNs
@@ -1445,6 +1587,9 @@ def step (c : Conn) (event : Event) : Except Error (Conn × List Action) := do
       c with
       expectedPeer := peerId,
       tls := {c.tls with expectedPeer := peerId, utcNs := c.utcNs},
+      recovery := match Spec.Quic.Recovery.init (recoveryConfig c.limits) 1 0 c.now false with
+        | .ok r => r
+        | .error _ => c.recovery,
       entropyOutstanding := true,
       entropyRequestId := c.entropyRequestId + 1,
       handshakeDeadline := c.now + c.limits.handshakeTimeoutNs,
@@ -1537,8 +1682,40 @@ def step (c : Conn) (event : Event) : Except Error (Conn × List Action) := do
       else
         return (c, [])
     else if id == timerLoss then
-      let (state, actions) ← stepPto c
-      return (state, List.reverse actions)
+      -- The loss-recovery leaves are the timing authority. The loss threshold
+      -- drives repacketization of the lost space; the expiry threshold sends
+      -- recovery probes. Any recovered state also gets one regular emission.
+      let timed := setClock c now
+      match Spec.Quic.Recovery.timer timed.recovery now with
+      | .ok action =>
+        let lossDue := action.kind == 11 && action.token == 1 && action.time <= now
+        let ptoDue := action.kind == 11 && action.token == 2 && action.time <= now
+        if lossDue && action.index <= 2 then
+          let level := match action.index with
+            | 0 => Level.initial | 1 => Level.handshake | _ => Level.application
+          let after :=
+            match Spec.Quic.Recovery.beginLoss timed.recovery now action.index with
+            | .error _ => timed
+            | .ok (st, _) => {timed with recovery := resumeBatch st}
+          let (state, actions) ← reemitLevel after level
+          let (state2, more) ← emitRound state
+          return (state2, actions ++ more)
+        else if ptoDue && action.index <= 2 then
+          let level := match action.index with
+            | 0 => Level.initial | 1 => Level.handshake | _ => Level.application
+          let after :=
+            match Spec.Quic.Recovery.firePto timed.recovery now action.time action.index with
+            | .error _ => timed
+            | .ok (st, _) => {timed with recovery := st}
+          let (state, actions) ← reemitLevel after level
+          let (state2, more) ← emitRound state
+          return (state2, actions ++ more)
+        else
+          let (state, actions) ← emitRound timed
+          return (state, actions)
+      | .error _ =>
+        let (state, actions) ← emitRound timed
+        return (state, actions)
     else
       throw .stale
   | Event.ping bytes =>
@@ -1583,15 +1760,21 @@ def step (c : Conn) (event : Event) : Except Error (Conn × List Action) := do
         [Action.closed 0])
     else
       let frame ← closeFrame 0 []
-      let draft : Draft := Draft.mk level frame 0 0 [] [] false 0
-      let (state, bytes) ← protectBundle c {level := level, draft := draft, reserved := []}
-      let overBudget := state.role == .server && !state.peerValidated &&
-        state.unvalidatedTx + bytes.length > 3 * state.unvalidatedRx
-      if overBudget then
-        return ({c with closedAt := some c.now, errorCode := none},
-          [Action.closed 0])
-      else
-        return ({state with closedAt := some state.now, errorCode := none},
-          [Action.sendDatagram bytes, Action.closed 0])
+      let draft : Draft := Draft.mk level frame 0 0 [] [] false 0 true
+      let rawLen ← draftRawLength c {draft with number := 0}
+      match ← registerOutgoing c level rawLen true false with
+      | .none => return (c, [Action.closed 0])
+      | .some (registered, pn) =>
+        let bundle : DraftBundle := {level := level, draft := draft, reserved := [], savedOut := {}, savedLog := [], savedDone := false, savedPath := none}
+        let (state, bytes) ← protectBundle registered bundle pn
+        let overBudget := state.role == .server && !state.peerValidated &&
+          state.unvalidatedTx + bytes.length > 3 * state.unvalidatedRx
+        if overBudget then
+          return ({c with closedAt := some c.now, errorCode := none},
+            [Action.closed 0])
+        else
+          return ({state with closedAt := some state.now, errorCode := none},
+            [Action.sendDatagram bytes, Action.closed 0])
+
 
 end Libp2pAsm.Spec.Connection
