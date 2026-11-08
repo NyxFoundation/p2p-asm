@@ -1,0 +1,33 @@
+{
+  "inspected": {
+    "go-libp2p-v0.51.0-crypto.go": {
+      "sha256": "40fbef4ad68179add2472b8d1b3b723aa56defc4053036a3015b57f67ea252c3",
+      "license": "MIT"
+    },
+    "rust-libp2p-tls-0.7.0-certificate.rs": {
+      "sha256": "cc2235283eaffd86d75b302f568d08045e32b218a8fb9f7da418cc636bec5c0d",
+      "license": "MIT"
+    },
+    "go-libp2p-v0.51.0-secp256k1.go": {
+      "sha256": "26a0fea77766a8728d4ac48bcb8e1f3339168cbd79626913add0381cf06b732b",
+      "license": "MIT"
+    }
+  },
+  "go-libp2p": {
+    "version": "v0.51.0",
+    "commit": "03349944847387886bf06b65993b2a03c1e6d12d"
+  },
+  "rust-libp2p-tls": {
+    "version": "0.7.0",
+    "crate-checksum": "01dc85ad2bbc3506502f430a00dd913ec87f31e1894291cb9b923168babb6485"
+  },
+  "cryptography-test-only": "49.0.0",
+  "standards": [
+    "RFC8446 section4.4.3",
+    "RFC5280",
+    "RFC8017",
+    "RFC4055",
+    "libp2p TLS r0"
+  ],
+  "runtime": "Existing frozen RV64 crypto and ASN.1 modules only; new composition is original code."
+}

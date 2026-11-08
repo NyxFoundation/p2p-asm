@@ -11,6 +11,8 @@ import Tests.AbiProof.ClockAxioms
 import Tests.QuicCrypto.ProofAudit
 import Tests.RSA.ProofAudit
 import Tests.Tls.ProofAudit
+import Tests.CertificateAuth.ProofAudit
+import Tests.Kernel.ProofAudit
 
 run_cmd do
   let env ← Lean.getEnv
