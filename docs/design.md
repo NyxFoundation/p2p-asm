@@ -10,7 +10,7 @@ tags:
   - formal-verification
 ---
 
-# libp2p-asm 設計
+# p2p-asm 設計
 
 ## 1. 状態と合意事項
 
