@@ -90,6 +90,18 @@ def isaProfile : LeanAsm.Rv64.IsaProfile :=
     simp [isaProfile, Instr.toLeanAsm, LeanAsm.Rv64.IsaProfile.Supports,
       LeanAsm.Rv64.Instr.opcode]
 
+theorem lowerList_conforms (code : List Instr) :
+    LeanAsm.Rv64.Program.Conforms isaProfile (code.map Instr.toLeanAsm) := by
+  intro target membership
+  simp only [List.mem_map] at membership
+  obtain ⟨source, _, rfl⟩ := membership
+  exact source.toLeanAsm_supported
+
+theorem lowerArray_conforms (code : Array Instr) :
+    LeanAsm.Rv64.Program.Conforms isaProfile
+      (code.toList.map Instr.toLeanAsm) :=
+  lowerList_conforms code.toList
+
 instance : LeanAsm.LowerRv64 (List Instr) where
   lower code := .ok (code.map Instr.toLeanAsm)
 
