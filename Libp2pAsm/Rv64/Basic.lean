@@ -1,39 +1,29 @@
-import Std
+import LeanAsm.Rv64.Basic
 
 /-!
-Register names and the typed instruction representation are adapted from
-RiscvZkvm.Rv64.Basic at afcbc45e1c74c2d296e032b5606dd977a304e8ad,
-originally from evm-asm. See LICENSES/ and docs/provenance.md.
-Only the implemented instruction subset is represented; no zkVM operations.
+The shared word, register, and trap vocabulary now comes from LeanAsm. The
+project-specific instruction subset remains local during the staged migration;
+its exhaustive proofs intentionally continue to range over only implemented
+instructions.
 -/
 
 namespace Libp2pAsm.Rv64
 
-abbrev Word := BitVec 64
+abbrev Word := LeanAsm.Rv64.Word
+abbrev Reg := LeanAsm.Rv64.Reg
 
-inductive Reg where
-  | x0 | x1 | x2 | x3 | x4 | x5 | x6 | x7
-  | x8 | x9 | x10 | x11 | x12 | x13 | x14 | x15
-  | x16 | x17 | x18 | x19 | x20 | x21 | x22 | x23
-  | x24 | x25 | x26 | x27 | x28 | x29 | x30 | x31
-  deriving DecidableEq, BEq, Repr
+namespace Reg
+export LeanAsm.Rv64.Reg (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15)
+export LeanAsm.Rv64.Reg (x16 x17 x18 x19 x20 x21 x22 x23 x24 x25 x26 x27 x28 x29 x30 x31)
+export LeanAsm.Rv64.Reg (zero ra sp gp tp t0 t1 t2 s0 fp s1 a0 a1 a2 a3 a4 a5 a6 a7)
+export LeanAsm.Rv64.Reg (s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 t3 t4 t5 t6)
+def toNat (reg : Reg) : Nat := LeanAsm.Rv64.Reg.toNat reg
 
-def Reg.toNat : Reg → Nat
-  | .x0 => 0 | .x1 => 1 | .x2 => 2 | .x3 => 3
-  | .x4 => 4 | .x5 => 5 | .x6 => 6 | .x7 => 7
-  | .x8 => 8 | .x9 => 9 | .x10 => 10 | .x11 => 11
-  | .x12 => 12 | .x13 => 13 | .x14 => 14 | .x15 => 15
-  | .x16 => 16 | .x17 => 17 | .x18 => 18 | .x19 => 19
-  | .x20 => 20 | .x21 => 21 | .x22 => 22 | .x23 => 23
-  | .x24 => 24 | .x25 => 25 | .x26 => 26 | .x27 => 27
-  | .x28 => 28 | .x29 => 29 | .x30 => 30 | .x31 => 31
+theorem toNat_lt (reg : Reg) : reg.toNat < 32 := by
+  simpa [toNat] using LeanAsm.Rv64.Reg.toNat_lt reg
 
-theorem Reg.toNat_lt (r : Reg) : r.toNat < 32 := by
-  cases r <;> decide
-
-def Reg.toFin (r : Reg) : Fin 32 := ⟨r.toNat, r.toNat_lt⟩
-
-instance : ToString Reg := ⟨fun r => s!"x{r.toNat}"⟩
+def toFin (reg : Reg) : Fin 32 := ⟨reg.toNat, reg.toNat_lt⟩
+end Reg
 
 inductive Instr where
   | ADD (rd rs1 rs2 : Reg) | SUB (rd rs1 rs2 : Reg)
@@ -63,10 +53,51 @@ inductive Instr where
   | JALR (rd rs1 : Reg) (offset : BitVec 12)
   deriving DecidableEq, BEq, Repr
 
-inductive Trap where
-  | memoryBounds | memoryMisaligned | readOnlyMemory | invalidMemory
-  | instructionBounds | instructionMisaligned | invalidProgram
-  | unsupportedWidth | fuelExhausted
-  deriving DecidableEq, BEq, Repr
+namespace Instr
+
+def toLeanAsm : Instr → LeanAsm.Rv64.Instr
+  | .ADD d a b => .ADD d a b
+  | .SUB d a b => .SUB d a b
+  | .AND d a b => .AND d a b
+  | .OR d a b => .OR d a b
+  | .XOR d a b => .XOR d a b
+  | .SLL d a b => .SLL d a b
+  | .SRL d a b => .SRL d a b
+  | .SRA d a b => .SRA d a b
+  | .SLT d a b => .SLT d a b
+  | .SLTU d a b => .SLTU d a b
+  | .ADDI d a n => .ADDI d a n
+  | .ANDI d a n => .ANDI d a n
+  | .ORI d a n => .ORI d a n
+  | .XORI d a n => .XORI d a n
+  | .SLLI d a n => .SLLI d a n
+  | .SRLI d a n => .SRLI d a n
+  | .SRAI d a n => .SRAI d a n
+  | .LUI d n => .LUI d n
+  | .AUIPC d n => .AUIPC d n
+  | .MUL d a b => .MUL d a b
+  | .MULHU d a b => .MULHU d a b
+  | .DIVU d a b => .DIVU d a b
+  | .REMU d a b => .REMU d a b
+  | .LBU d a n => .LBU d a n
+  | .LD d a n => .LD d a n
+  | .SB a b n => .SB a b n
+  | .SD a b n => .SD a b n
+  | .BEQ a b n => .BEQ a b n
+  | .BNE a b n => .BNE a b n
+  | .BLTU a b n => .BLTU a b n
+  | .BGEU a b n => .BGEU a b n
+  | .JAL d n => .JAL d n
+  | .JALR d a n => .JALR d a n
+
+end Instr
+
+abbrev Trap := LeanAsm.Rv64.Trap
+
+namespace Trap
+export LeanAsm.Rv64.Trap (memoryBounds memoryMisaligned readOnlyMemory invalidMemory)
+export LeanAsm.Rv64.Trap (instructionBounds instructionMisaligned invalidProgram)
+export LeanAsm.Rv64.Trap (unsupportedWidth fuelExhausted)
+end Trap
 
 end Libp2pAsm.Rv64

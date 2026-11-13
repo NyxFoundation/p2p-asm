@@ -13,15 +13,17 @@ tags:
 
 - evm-asm: `7e65e4d024718f704226cd795f3d03d4e9aafe13`。
 - riscv-zkvm: `afcbc45e1c74c2d296e032b5606dd977a304e8ad`。
-- 実装のビルド依存: Lean `v4.33.0` と同梱の `Std`。
-  Mathlib、evm-asm、riscv-zkvmパッケージをimportする依存はない。
+- 実装のビルド依存: Lean `v4.33.0`、同梱の `Std`、および
+  `NyxFoundation/LeanAsm`（`lakefile.toml`でcommit固定）。
+  Mathlib、evm-asm、riscv-zkvmパッケージを直接importする依存はない。
 - 調査元リポジトリは変更していない。ライセンスは
   [evm-asm](../LICENSES/evm-asm.txt)と[riscv-zkvm](../LICENSES/riscv-zkvm.txt)に保存する。
 
 | 移植先 | 参照元 | 採用範囲 |
 | --- | --- | --- |
-| `Rv64/Basic.lean` | `RiscvZkvm/Rv64/Basic.lean` | レジスタ名、型付き命令の表現 |
-| `Rv64/SAsm.lean` | `EvmAsm/Rv64/SAsm/Ast.lean`, `Flatten.lean` | 構造化分岐・ループと命令数に基づく相対offset |
+| `Rv64/Basic.lean` | `LeanAsm/Rv64/Basic.lean` | 共通Word、レジスタ、trapとローカル命令profile |
+| `Rv64/Memory.lean`, `State.lean`, `Execution.lean`, `Encoding.lean` | `LeanAsm/Rv64/*` | region memory、状態、RV64意味論、machine-code encoder |
+| `Rv64/SAsm.lean` | `EvmAsm/Rv64/SAsm/Ast.lean`, `Flatten.lean` | 構造化分岐・ループと命令数に基づく相対offset。LeanAsm共通SAsmへの移行予定 |
 | `Asm/Crypto/AES/Circuit.lean` | BearSSL `aes_ct64.c`、`7561e7d6c86171257a4153d95202b0791b3612a8` | Boyar–Peraltaの115 gate S-box回路。MIT表記は [bearssl.txt](../LICENSES/bearssl.txt) |
 | `Crypto/Curve25519/` | HACL* `f557259007db9933442dde10aa995c1b00bd3446`、RFC 7748/8032 | 5×51 limb、Montgomery ladder、complete Edwards式のRV64実装。独立Nat仕様。詳細な差分・ライセンス・blob固定は [台帳](../Tests/Curve25519/provenance.json) |
 | `Crypto/Weierstrass/` | HACL* `f557259007db9933442dde10aa995c1b00bd3446`、SEC2 | P-256／secp256k1の独立Nat仕様とcomplete homogeneous式のRV64。詳細な採用範囲は [曲線台帳](../Tests/Weierstrass/README.md) |

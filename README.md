@@ -3,7 +3,9 @@
 Lean 4で構造化アセンブリを定義し、RV64IM命令列として実行・検証する
 libp2p実装を目指すプロジェクトです。
 [evm-asm](https://github.com/Verified-zkEVM/evm-asm)の検証付きマクロアセンブラに
-着想を得ています。**zkVMを使用するプロジェクトではありません。**
+着想を得ています。共通RV64基盤は
+[LeanAsm](https://github.com/NyxFoundation/LeanAsm)へ段階的に移行しています。
+**zkVMを使用するプロジェクトではありません。**
 
 ## 現在の状態
 
