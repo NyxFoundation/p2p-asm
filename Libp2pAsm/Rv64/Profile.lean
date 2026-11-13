@@ -1,4 +1,5 @@
 import Libp2pAsm.Rv64.Vocabulary
+import LeanAsm.Frontend
 
 /-!
 The deliberately small instruction profile used by p2p-asm's existing
@@ -75,4 +76,31 @@ def toLeanAsm : Instr → LeanAsm.Rv64.Instr
   | .JALR d a n => .JALR d a n
 
 end Instr
+
+/-- The exact opcode policy currently used by p2p execution and proofs. -/
+def isaProfile : LeanAsm.Rv64.IsaProfile :=
+  ⟨[.ADD, .SUB, .AND, .OR, .XOR, .SLL, .SRL, .SRA, .SLT, .SLTU,
+    .ADDI, .ANDI, .ORI, .XORI, .SLLI, .SRLI, .SRAI, .LUI, .AUIPC,
+    .MUL, .MULHU, .DIVU, .REMU, .LBU, .LD, .SB, .SD,
+    .BEQ, .BNE, .BLTU, .BGEU, .JAL, .JALR]⟩
+
+@[simp] theorem Instr.toLeanAsm_supported (instruction : Instr) :
+    isaProfile.Supports instruction.toLeanAsm := by
+  cases instruction <;>
+    simp [isaProfile, Instr.toLeanAsm, LeanAsm.Rv64.IsaProfile.Supports,
+      LeanAsm.Rv64.Instr.opcode]
+
+instance : LeanAsm.LowerRv64 (List Instr) where
+  lower code := .ok (code.map Instr.toLeanAsm)
+
+instance : LeanAsm.LowerRv64 (Array Instr) where
+  lower code := .ok (code.toList.map Instr.toLeanAsm)
+
+instance : LeanAsm.EmitAsm (List Instr) where
+  emit name code := .ok (LeanAsm.Rv64.emitProgram name (code.map Instr.toLeanAsm))
+
+instance : LeanAsm.EmitAsm (Array Instr) where
+  emit name code :=
+    .ok (LeanAsm.Rv64.emitProgram name (code.toList.map Instr.toLeanAsm))
+
 end Libp2pAsm.Rv64

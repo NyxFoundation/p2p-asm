@@ -34,4 +34,12 @@ def Program.fetch (p : Program) (pc : Word) : Except Trap Instr := do
   if h : offset < p.code.size then return p.code[offset]
   else throw .instructionBounds
 
+instance : LeanAsm.LowerRv64 Program where
+  lower program := LeanAsm.lowerRv64 program.code
+
+instance : LeanAsm.EmitAsm Program where
+  emit name program := do
+    let code ← LeanAsm.lowerRv64 program
+    return LeanAsm.Rv64.emitProgram name code
+
 end Libp2pAsm.Rv64

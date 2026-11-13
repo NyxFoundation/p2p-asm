@@ -89,4 +89,17 @@ theorem Stmt.flatten_length (s : Stmt) : s.flatten.length = s.size := by
   | loop c body hb => simp [flatten, size, hb]
   | ret => rfl
 
+instance : LeanAsm.LowerRv64 Stmt where
+  lower statement :=
+    match statement.lower with
+    | .ok code => LeanAsm.lowerRv64 code
+    | .error .controlInBlock => .error "control-flow instruction in a straight-line block"
+    | .error .branchOutOfRange => .error "structured branch is out of range"
+    | .error .jumpOutOfRange => .error "structured jump is out of range"
+
+instance : LeanAsm.EmitAsm Stmt where
+  emit name statement := do
+    let program ← LeanAsm.lowerRv64 statement
+    return LeanAsm.Rv64.emitProgram name program
+
 end Libp2pAsm.Rv64.SAsm
