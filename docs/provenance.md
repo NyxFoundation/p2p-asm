@@ -21,7 +21,9 @@ tags:
 
 | 移植先 | 参照元 | 採用範囲 |
 | --- | --- | --- |
-| `Rv64/Basic.lean` | `LeanAsm/Rv64/Basic.lean` | 共通Word、レジスタ、trapとローカル命令profile |
+| `Rv64/Vocabulary.lean` | `LeanAsm/Rv64/Basic.lean` | 共通Word、レジスタ、trap |
+| `Rv64/Profile.lean` | p2p-asm固有 | 証明対象を限定する有限命令profileとLeanAsmへの全域embedding |
+| `Rv64/Basic.lean` | compatibility umbrella | 既存importを維持する薄い入口 |
 | `Rv64/Memory.lean`, `State.lean`, `Execution.lean`, `Encoding.lean` | `LeanAsm/Rv64/*` | region memory、状態、RV64意味論、machine-code encoder |
 | `Rv64/SAsm.lean` | `EvmAsm/Rv64/SAsm/Ast.lean`, `Flatten.lean` | 構造化分岐・ループと命令数に基づく相対offset。LeanAsm共通SAsmへの移行予定 |
 | `Asm/Crypto/AES/Circuit.lean` | BearSSL `aes_ct64.c`、`7561e7d6c86171257a4153d95202b0791b3612a8` | Boyar–Peraltaの115 gate S-box回路。MIT表記は [bearssl.txt](../LICENSES/bearssl.txt) |
