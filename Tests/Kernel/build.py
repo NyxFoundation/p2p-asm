@@ -13,7 +13,7 @@ def prepare():
         for p in (ROOT/part).rglob('*.lean'):
             dst=PACKAGE/p.relative_to(ROOT);dst.parent.mkdir(parents=True,exist_ok=True)
             if not dst.exists() or dst.read_bytes()!=p.read_bytes(): shutil.copyfile(p,dst)
-    policy=Path(os.environ.get('KERNEL_FROZEN_ROOT',str(ROOT.parent/'libp2p-asm')))
+    policy=Path(os.environ.get('KERNEL_FROZEN_ROOT',str(ROOT.parent/'p2p-asm')))
     for rel in ('Libp2pAsm/Spec/Limits.lean','Libp2pAsm/Spec/Limits/Types.lean'):
         src=ROOT/rel if (ROOT/rel).exists() else policy/rel
         dst=PACKAGE/rel;dst.parent.mkdir(parents=True,exist_ok=True)
