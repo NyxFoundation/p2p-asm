@@ -21,7 +21,7 @@ def one (kind : String) (dir : System.FilePath) (code : Array Instr) (i : Nat) :
       check s!"typed constructor roundtrip {name}" (match reencode c.a with | .ok b => b == c.a.extract 0 consumed | .error _ => false)
     else
       check s!"ClientHello emitter rejects SNI {name}" (match reencode c.a with | .error e => e == .profile | .ok _ => false)
-  check "program mapping and disjoint code" ((Program.mk 0x10000 code).valid c.start.memory)
+  check "program mapping and disjoint code" ((⟨0x10000, code⟩ : Program).valid c.start.memory)
   let (actual,steps) ← match execute ⟨0x10000,code⟩ c (5000000+50000*c.a.size/64) c.start 0 with
     | .ok r => pure r | .error e => throw (IO.userError s!"{kind} {name}: {e}")
   IO.FS.writeBinFile (path / "after.bin") (snapshot actual)

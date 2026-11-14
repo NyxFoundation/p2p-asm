@@ -18,6 +18,7 @@ import Libp2pAsm.Asm.Crypto.Quic.Packet
 import Libp2pAsm.Asm.Crypto.Quic.Retry
 import Libp2pAsm.Asm.Crypto.RSA.Api
 import Libp2pAsm.Codegen.Assembly
+import Libp2pAsm.Codegen.X64
 import Libp2pAsm.Codegen.CodecProbe
 import Libp2pAsm.Codegen.BufferProbe
 import Libp2pAsm.Codegen.ClockProbe
@@ -26,7 +27,8 @@ import Libp2pAsm.Codegen.Protocols
 open Libp2pAsm
 
 private def usage : String :=
-  "Usage: libp2p-asm-codegen (asm|hex) <routine>\n" ++
+  "Usage: libp2p-asm-codegen [--target rv64|x86_64] (asm|hex) <routine>\n" ++
+  "       x86_64 supports asm only; the default target is rv64.\n" ++
   "       libp2p-asm-codegen eval (add|min) <u64> <u64>\n" ++
   "       libp2p-asm-codegen eval-codec <routine> <value|hex> <capacity|length>\n" ++
   "       libp2p-asm-codegen eval-buffer <hex> <ref-offset> <slots> <write-flag>\n" ++
@@ -125,17 +127,26 @@ private def printProbe (result : Option ByteArray) : IO UInt32 := do
   IO.println (Codegen.hexBytes bytes)
   return 0
 
-private def emit (format name : String) : IO UInt32 := do
+private def emit (format name : String) (target : String := "rv64") : IO UInt32 := do
+  unless target == "rv64" || target == "x86_64" do
+    (← IO.getStderr).putStrLn "Unknown target; use rv64 or x86_64."
+    return 2
+  unless format == "asm" || (format == "hex" && target == "rv64") do
+    (← IO.getStderr).putStrLn "Use asm for either target; hex is RV64-only."
+    return 2
   let .ok body := routine name
     | (← IO.getStderr).putStrLn "Unknown routine or invalid routine layout."; return 2
   let .ok code := body.lower
     | (← IO.getStderr).putStrLn "Assembly layout validation failed."; return 1
+  if target == "x86_64" then
+    match Codegen.X64.assembly code with
+    | .ok text => IO.print text; return 0
+    | .error message => (← IO.getStderr).putStrLn message; return 1
+  if format == "asm" then IO.print (Codegen.assembly code); return 0
   let .ok bytes := Rv64.encodeProgram code
     | (← IO.getStderr).putStrLn "Instruction encoding failed."; return 1
-  match format with
-  | "asm" => IO.print (Codegen.assembly code); return 0
-  | "hex" => IO.println (Codegen.hexBytes bytes); return 0
-  | _ => (← IO.getStderr).putStrLn usage; return 2
+  IO.println (Codegen.hexBytes bytes)
+  return 0
 
 def main (args : List String) : IO UInt32 :=
   match args with
@@ -145,5 +156,6 @@ def main (args : List String) : IO UInt32 :=
   | ["eval-buffer", hex, offset, count, write] =>
     printProbe (Codegen.evalBuffer hex offset count write)
   | ["eval-clock", hex, drift, span] => printProbe (Codegen.evalClock hex drift span)
+  | ["--target", target, format, name] => emit format name target
   | [format, name] => emit format name
   | _ => do (← IO.getStderr).putStrLn usage; return 2

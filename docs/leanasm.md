@@ -1,6 +1,6 @@
 ---
 title: LeanAsm boundary
-last_updated: 2026-11-14
+last_updated: 2026-11-15
 tags:
   - leanasm
   - boundaries
@@ -9,10 +9,11 @@ tags:
 
 # LeanAsm boundary
 
-p2p-asm consumes the portable RV64 foundation from
-[NyxFoundation/LeanAsm](https://github.com/NyxFoundation/LeanAsm). LeanAsm owns
-the canonical instruction vocabulary and execution semantics; p2p-asm owns only
-the policy describing which opcodes its current execution and proofs accept.
+p2p-asm consumes the RV64 foundation and scalar x86-64 instruction/emission
+layer from [NyxFoundation/LeanAsm](https://github.com/NyxFoundation/LeanAsm),
+pinned at `c55ebfef6eb0a44149deb4110654f71f4fd35543`. LeanAsm owns both instruction
+vocabularies and machine semantics. p2p-asm owns its RV64 opcode policy and the
+unproved translation from that profile to x86-64.
 
 ## Shared now
 
@@ -30,7 +31,9 @@ the policy describing which opcodes its current execution and proofs accept.
 - GNU assembly emission: `Codegen.assembly` renders instructions through the
   shared `LeanAsm.Rv64.emitInstr`; the p2p-specific section and entry symbol
   stay local
-- upstream provenance for the reusable RV64 layer
+- typed `LeanAsm.X64.Instr`, `X64.Symbolic.emitLine`, and the
+  `ABI.SysVAMD64` entry/exit frame helpers
+- upstream provenance for the reusable assembly layers
 
 `Rv64/Profile.lean` declares `isaProfile` and provides the gated capability
 instances. Widening the profile is an explicit p2p proof change.
@@ -40,8 +43,12 @@ instances. Widening the profile is an explicit p2p proof change.
 - the small structured SAsm AST (`Stmt` with `loop`/`ite`) and its
   position-independent lowering; it bridges to LeanAsm through the gated
   `LowerRv64`/`EmitAsm` instances, and folding it into the shared
-  `LeanAsm.SAsm` AST remains future work now that proof consumers keep
+  `LeanAsm.Rv64.SAsm` AST remains future work now that proof consumers keep
   depending on the local unfold shape
+- `Codegen.X64`: register-context ABI, scalar translation, checked indirect
+  control-flow dispatch, and GNU relative jump-table relocations. This is
+  assembly emission, not a `LowerX64` fixed-instruction encoding instance.
+  See [x86-64 backend](x86-64.md); existing RV64 proofs do not cover it.
 - relocation and access-footprint predicates
 - protocol routines and their contracts
 - parser-specific frame lemmas that step the shared semantics at the

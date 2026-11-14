@@ -59,7 +59,7 @@ def run (kind : String) (dir : System.FilePath) : IO Unit := do
     check "fixture" (f.regions.size == 6 && f.expectedRegions.size == 6 && f.args.size == 8)
     let start := initial f
     let want := expected f start
-    check "program mapping" ((Program.mk 0x10000 code).valid start.memory)
+    check "program mapping" ((⟨0x10000, code⟩ : Program).valid start.memory)
     let (done, trace) ← match checkedLoop ⟨0x10000,code⟩ f f.budget start 0 #[] with
       | .ok d => pure d | .error e => throw (IO.userError s!"{f.label}: {e}")
     IO.FS.writeBinFile (dir/s!"case-{idx}.before.bin") (snapshot start)

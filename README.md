@@ -1,19 +1,21 @@
 # p2p-asm
 
-Lean 4で構造化アセンブリを定義し、RV64IM命令列として実行・検証する
-P2Pスタック実装を目指すプロジェクトです。Lean package namespaceと既存の
+Lean 4で構造化アセンブリを定義し、RV64IMまたはLinux x86-64の命令列として
+実行・検証するP2Pスタック実装を目指すプロジェクトです。Lean package namespaceと既存の
 実行ファイル名は互換性のため当面 `Libp2pAsm` / `libp2p-asm-*` を維持します。
 [evm-asm](https://github.com/Verified-zkEVM/evm-asm)の検証付きマクロアセンブラに
-着想を得ています。共通RV64基盤は
-[LeanAsm](https://github.com/NyxFoundation/LeanAsm)へ段階的に移行しています。
+着想を得ています。RV64の命令・実行モデルとx86-64の命令・アセンブリ出力には
+[LeanAsm](https://github.com/NyxFoundation/LeanAsm)を使用しています。
 **zkVMを使用するプロジェクトではありません。**
 
 ## 現在の状態
 
 実装中です。暗号、証明書構造、QUIC wire、TLS鍵スケジュール／handshake codec、
-ストリーム再構成・送信、multistream・Pingの部品をASMで実装し、生成命令をQEMUで照合しています。
+ストリーム再構成・送信、multistream・Pingの部品をASMで実装しています。
+RV64版はQEMU、x86-64版はLinuxネイティブの実行テストで照合します。
 varint、buffer resolver、時計判定、protobuf uint64、DER headerには全入力の対応証明があります
 （所有権・配置などの前提は各契約を参照）。暗号・プロトコル全体の証明は未完成です。
+**x86-64への変換は未証明です。既存のRV64証明はx86-64版には適用されません。**
 **完成したQUIC/TLS接続、Peer ID認証、ASM核を使ったPing相互運用はまだありません。**
 
 [実装・検証の台帳](docs/implementation-status.md)、[設計書](docs/design.md)、
@@ -30,6 +32,27 @@ lake env lean Tests/Axioms.lean
 lake exe libp2p-asm-codegen --help
 lake exe libp2p-asm-codegen asm quic-decode
 ```
+
+### Linux x86-64
+
+GCCとGNU binutilsを導入したx86-64 Linuxで、CからQUIC varintをデコードします。
+QEMUやSIMD・SHA拡張は不要です。
+
+```sh
+mkdir -p build/x64
+lake exe libp2p-asm-codegen --target x86_64 asm quic-decode > build/x64/quic-decode.S
+gcc -Wall -Wextra -Werror -fPIE -pie -Iinclude Examples/X64.c build/x64/quic-decode.S -o build/x64/example
+build/x64/example
+python3 Tests/X64/check.py
+```
+
+正常終了が成功です。C入口はSystem V AMD64 ABIの
+`protocol_entry(struct p2p_asm_registers *)` で、既存ルーチンの引数・戻り値を
+レジスタ配列で渡します。呼出側がバッファと必要なスタックを確保します。
+全生成対象が選択可能ですが、`hex`出力はRV64専用です。
+[ABI・制約・検証範囲](docs/x86-64.md)を参照してください。
+
+### RISC-V RV64IM（デフォルト）
 
 生成したRV64コードを実行するテストにはPython 3、GNU RISC-V binutils、
 Linux user-modeの `qemu-riscv64` が必要です。Debian/Ubuntuでは通常
@@ -88,7 +111,7 @@ python3 Tests/Pipeline/check.py
 
 「ASM」は独自の抽象的なネットワーク命令だけを実行する機械ではありません。
 最終的なプロトコル核は実CPUの命令列です。
-通常の実行環境はLinux/RV64を基準とし、開発・検証にはQEMUも利用する方針です。
+実行環境はLinux/RV64とLinux/x86-64です。RV64の開発・検証にはQEMUも利用します。
 
 ## 最初の相互運用目標
 
