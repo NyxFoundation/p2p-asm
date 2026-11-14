@@ -25,19 +25,19 @@ theorem wordAt_locate {m : Memory} {addr value : Word} {index : Nat}
   have hidx := h.present
   apply Array.findIdx?_eq_some_iff_getElem.mpr
   refine ⟨h.present, ?_, ?_⟩
-  · simp [Region.contains, h.lower]; have := h.fits; omega
+  · simp [LeanAsm.Rv64.Region.contains, h.lower]; have := h.fits; omega
   · intro j hj hc
     have hdis : (m.regions[j]'(by omega)).disjoint (m.regions[index]'h.present) := by
-      have hp : m.regions.toList.Pairwise Region.disjoint := by
+      have hp : m.regions.toList.Pairwise LeanAsm.Rv64.Region.disjoint := by
         have hm := hv
-        simp only [Memory.valid, Bool.and_eq_true, decide_eq_true_eq] at hm
+        simp only [LeanAsm.Rv64.Memory.valid, Bool.and_eq_true, decide_eq_true_eq] at hm
         exact hm.2
       have hh := List.pairwise_iff_getElem.mp hp j index (by simpa using Nat.lt_trans hj h.present) (by simpa using h.present) hj
       simpa using hh
-    simp only [Region.contains, decide_eq_true_eq] at hc
+    simp only [LeanAsm.Rv64.Region.contains, decide_eq_true_eq] at hc
     have hl := h.lower
     have hb := h.fits
-    unfold Region.disjoint Region.endAddr at hdis
+    unfold LeanAsm.Rv64.Region.disjoint LeanAsm.Rv64.Region.endAddr at hdis
     omega
 
 theorem WordAt.load {m : Memory} {addr value : Word}
@@ -47,12 +47,12 @@ theorem WordAt.load {m : Memory} {addr value : Word}
   have hf := wordAt_locate hv h
   have hb := h.fits
   rw [h.bytes]
-  unfold Memory.load
-  unfold_internal Libp2pAsm.Rv64.Memory.locate
-  unfold_internal Libp2pAsm.Rv64.supportedWidth
+  unfold LeanAsm.Rv64.Memory.load
+  unfold LeanAsm.Rv64.Memory.locate
+  unfold LeanAsm.Rv64.supportedWidth
   simp only [hv, h.aligned, hf, h.present]
   simp [bind, Except.bind, pure, Except.pure]
-  unfold_internal Libp2pAsm.Rv64.readBytes
+  unfold LeanAsm.Rv64.readBytes
   simp [hidx, readLE64, List.range_succ, bind, Except.bind, pure, Except.pure,
     show addr.toNat - m.regions[index].base.toNat < m.regions[index].bytes.size by omega,
     show addr.toNat - m.regions[index].base.toNat + 1 < m.regions[index].bytes.size by omega,

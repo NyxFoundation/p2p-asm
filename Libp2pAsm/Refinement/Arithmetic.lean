@@ -41,7 +41,7 @@ theorem addWords_run_correct (s : State) (hpc : s.pc = 0x10000)
     rw [hpc, fetch0]
     rfl
   have pc1 : after.pc = 0x10004 := by
-    simp [after, State.advance, hpc]
+    simp [after, LeanAsm.Rv64.State.advance, hpc]
   have ra1 : after.getReg .x1 = 0 := by
     simpa [after] using (State.getReg_setReg_other s .x10 .x1
       (s.getReg .x10 + s.getReg .x11) (by decide)).trans hra
@@ -50,7 +50,7 @@ theorem addWords_run_correct (s : State) (hpc : s.pc = 0x10000)
     rw [pc1, fetch1]
     change jump after .x0 ((after.getReg .x1 + 0) &&& (~~~(1 : Word))) = .ok (addPost s)
     rw [ra1]
-    simp [jump, addPost, returnTarget, hra, after, State.advance]
+    simp [jump, addPost, returnTarget, hra, after, LeanAsm.Rv64.State.advance]
   unfold runUntil
   rw [hvalid]
   change runLoop addProgram 0 2 s 0 = .ok ⟨addPost s, 2⟩

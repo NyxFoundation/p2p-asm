@@ -1,7 +1,7 @@
 import Libp2pAsm.Rv64.Basic
 import LeanAsm.Rv64.Encoding
 
-/-! Machine-code encoding delegated to LeanAsm through the local ISA profile. -/
+/-! Machine-code encoding delegated to LeanAsm under stable local names. -/
 
 namespace Libp2pAsm.Rv64
 
@@ -11,11 +11,10 @@ namespace EncodeError
 export LeanAsm.Rv64.EncodeError (oddDisplacement)
 end EncodeError
 
-def encode (instruction : Instr) : Except EncodeError UInt32 :=
-  LeanAsm.Rv64.encode instruction.toLeanAsm
+export LeanAsm.Rv64 (encode encodeArray)
 
-def encodeProgram (code : Array Instr) : Except EncodeError ByteArray := do
-  let shared ← code.mapM (fun instruction => pure instruction.toLeanAsm)
-  LeanAsm.Rv64.encodeArray shared
+/-- Encode an instruction array into little-endian machine code. -/
+def encodeProgram (code : Array Instr) : Except EncodeError ByteArray :=
+  LeanAsm.Rv64.encodeArray code
 
 end Libp2pAsm.Rv64

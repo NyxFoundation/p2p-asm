@@ -74,7 +74,7 @@ theorem quic_encode_runUntil (s : State) (base : Word) (bytes : Array UInt8) (fr
         (s.getReg .x12).toNat).2.length)
         done.steps s done.state := by
   have hmv : s.memory.valid = true := by
-    simp only [Program.valid, Bool.and_eq_true] at hv; exact hv.1.1
+    simp only [LeanAsm.Rv64.Image.valid, Bool.and_eq_true] at hv; exact hv.1.1
   obtain ⟨n, t, hn, ht, htpc, hout⟩ := quic_encode_trace s base bytes frame hp hm hb hcap hmv hra
   have he := writeTrace_at_pc hpc ht
   exact ⟨⟨t, n⟩, he.trace.runUntil htpc hv 128 hn, hn, htpc, hout, codecs_callee_saved (.inl rfl) he.trace, he⟩

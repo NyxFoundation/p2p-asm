@@ -17,7 +17,7 @@ def clearRegs : List Reg :=
 /-- x11=data pointer, x12=circuit; n is a public, compile-time byte count ≤16.
 Clobbers x5,x6,x7,x28,x29,x30. The input plane slots are initialized each time. -/
 def transposeIn (n : Nat) : SAsm.Stmt := sequence [
-  .block ((List.range 8).map (fun i => Instr.SD .x12 .x0 (imm (8*i))) ++
+  .block ((List.range 8).map (fun i => LeanAsm.Rv64.Instr.SD .x12 .x0 (imm (8*i))) ++
     [.ADDI .x28 .x11 0, .ADDI .x29 .x0 0, .ADDI .x30 .x0 (imm n)]),
   .loop (.ltu .x29 .x30) (.block <|
     [.LBU .x7 .x28 0] ++ (List.range 8).flatMap (fun i =>

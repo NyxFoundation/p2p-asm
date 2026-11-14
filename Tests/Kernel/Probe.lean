@@ -144,7 +144,7 @@ def run (kind : String) (dir : System.FilePath) : IO Unit := do
     checkSpec kind f
     let start := initial f
     let want := expected f start
-    check "program mapping" ((Program.mk 0x10000 code).valid start.memory)
+    check "program mapping" ((LeanAsm.Rv64.Image.mk (0x10000 : Word) code).valid start.memory)
     let done ← match checkedLoop ⟨0x10000,code⟩ f 16777216 start 0 with
       | .ok d => pure d | .error e => throw (IO.userError s!"{f.label}: {e}")
     IO.FS.writeBinFile (dir/s!"case-{idx}.before.bin") (snapshot start)

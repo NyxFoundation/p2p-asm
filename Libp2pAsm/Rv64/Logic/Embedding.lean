@@ -20,7 +20,7 @@ def InCode (p : Program) (pc : Word) : Prop :=
 
 theorem fetch_inCode {p : Program} {pc : Word} {i : Instr}
     (hf : p.fetch pc = .ok i) : InCode p pc := by
-  simp only [Program.fetch, bind, Except.bind, pure, Except.pure,
+  simp only [LeanAsm.Rv64.Image.fetch, bind, Except.bind, pure, Except.pure,
     throw, throwThe, MonadExceptOf.throw] at hf
   repeat split at hf
   all_goals simp_all [InCode]
@@ -38,7 +38,7 @@ theorem fetch_index {p : Program} {pc : Word} {i : Instr}
     have hn : p.base.toNat + 4 * j = pc.toNat := by
       dsimp [j]; rcases hi with ⟨_, _, _⟩; omega
     rw [hn, Nat.mod_eq_of_lt pc.isLt]
-  · simpa [Program.fetch, hi.1, hi.2.1, j, hj, pure, Except.pure] using hf
+  · simpa [LeanAsm.Rv64.Image.fetch, hi.1, hi.2.1, j, hj, pure, Except.pure] using hf
 
 theorem CodeSlice.fetch {whole leaf : Program} {start : Nat}
     (h : CodeSlice whole leaf start) (ha : whole.base.toNat % 4 = 0)
@@ -126,12 +126,18 @@ structure ValidImage (p : Program) (m : Memory) : Prop where
 
 theorem ValidImage.valid {p : Program} {m : Memory} (h : ValidImage p m) :
     p.valid m = true := by
-  simp only [Program.valid, Bool.and_eq_true, decide_eq_true_eq]
+  simp only [LeanAsm.Rv64.Image.valid, Bool.and_eq_true, decide_eq_true_eq]
   refine ⟨⟨h.memory, h.aligned, h.nonempty, h.bounded⟩, ?_⟩
   rw [Array.all_eq_true]
   intro j hj
   cases hw : m.regions[j].writable with
   | false => simp
-  | true => simp [h.separated m.regions[j] (Array.getElem_mem hj) hw]
+  | true =>
+    have hs := h.separated m.regions[j] (Array.getElem_mem hj) hw
+    show (!true ||
+      decide (m.regions[j].endAddr ≤ BitVec.toNat p.base ∨
+        LeanAsm.Rv64.Image.endAddr p ≤ BitVec.toNat m.regions[j].base)) = true
+    simp only [Bool.not_true, Bool.false_or, decide_eq_true_eq]
+    exact hs
 
 end Libp2pAsm.Rv64.Logic

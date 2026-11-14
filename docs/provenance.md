@@ -23,9 +23,9 @@ tags:
 | --- | --- | --- |
 | `Rv64/Vocabulary.lean` | `LeanAsm/Rv64/Basic.lean` | 共通Word、レジスタ、trap |
 | `Rv64/Profile.lean` | p2p-asm固有 | 証明対象を限定する有限命令profileとLeanAsmへの全域embedding |
-| `Rv64/Basic.lean` | compatibility umbrella | 既存importを維持する薄い入口 |
+| `Rv64/Basic.lean` | compatibility umbrella | 既存importを維持する薄い入口。命令型は `Profile.lean` の共有型別名 |
 | `Rv64/Memory.lean`, `State.lean`, `Execution.lean`, `Encoding.lean` | `LeanAsm/Rv64/*` | region memory、状態、RV64意味論、machine-code encoder |
-| `Rv64/SAsm.lean` | `EvmAsm/Rv64/SAsm/Ast.lean`, `Flatten.lean` | 構造化分岐・ループと命令数に基づく相対offset。LeanAsm共通SAsmへの移行予定 |
+| `Rv64/SAsm.lean` | `EvmAsm/Rv64/SAsm/Ast.lean`, `Flatten.lean` | 構造化分岐・ループと命令数に基づく相対offset。`LowerRv64`/`EmitAsm`を介してLeanAsmへ接続 |
 | `Asm/Crypto/AES/Circuit.lean` | BearSSL `aes_ct64.c`、`7561e7d6c86171257a4153d95202b0791b3612a8` | Boyar–Peraltaの115 gate S-box回路。MIT表記は [bearssl.txt](../LICENSES/bearssl.txt) |
 | `Crypto/Curve25519/` | HACL* `f557259007db9933442dde10aa995c1b00bd3446`、RFC 7748/8032 | 5×51 limb、Montgomery ladder、complete Edwards式のRV64実装。独立Nat仕様。詳細な差分・ライセンス・blob固定は [台帳](../Tests/Curve25519/provenance.json) |
 | `Crypto/Weierstrass/` | HACL* `f557259007db9933442dde10aa995c1b00bd3446`、SEC2 | P-256／secp256k1の独立Nat仕様とcomplete homogeneous式のRV64。詳細な採用範囲は [曲線台帳](../Tests/Weierstrass/README.md) |

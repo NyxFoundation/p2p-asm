@@ -27,7 +27,7 @@ def remap (f : Word → Word) (ra : Word) (s : State) : State :=
 
 theorem setReg_ra_comm (s : State) (r : Reg) (v ra : Word) (hr : r ≠ .x1) :
     (s.setReg r v).setReg .x1 ra = (s.setReg .x1 ra).setReg r v := by
-  cases r <;> simp_all [State.setReg, Reg.toNat, Vector.set_comm]
+  cases r <;> simp_all [LeanAsm.Rv64.State.setReg, LeanAsm.Rv64.Reg.toNat, Vector.set_comm]
 
 @[simp] theorem remap_setReg (f : Word → Word) (ra : Word) (s : State)
     (r : Reg) (v : Word) (hr : r ≠ .x1) :

@@ -30,7 +30,7 @@ private theorem combined_valid (s : State) (bytes : Array UInt8)
     ValidImage combinedImage s.memory := by
   rw [hm]
   refine ⟨?_, by decide, by decide, by decide, ?_⟩
-  · simp [heap, Memory.valid, Region.valid, Region.endAddr]; omega
+  · simp [heap, LeanAsm.Rv64.Memory.valid, LeanAsm.Rv64.Region.valid, LeanAsm.Rv64.Region.endAddr]; omega
   · intro r hr hw
     simp [heap] at hr
     subst r

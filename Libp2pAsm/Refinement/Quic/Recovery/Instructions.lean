@@ -16,7 +16,7 @@ No synthetic opcode or pure Spec evaluator participates in execution. -/
 theorem execute_carry (s : Rv64.State) :
     execSequence Asm.Quic.Recovery.carryInstructions s = .ok (carryPost s) := by
   simp [Asm.Quic.Recovery.carryInstructions, execSequence, execInstr, writeReg, carryPost,
-    bind, Except.bind, State.advance, State.getReg, State.setReg, Reg.toNat]
+    bind, Except.bind, LeanAsm.Rv64.State.advance, LeanAsm.Rv64.State.getReg, LeanAsm.Rv64.State.setReg, LeanAsm.Rv64.Reg.toNat]
   rfl
 
 theorem carry_is_overflow (a b : Word) :

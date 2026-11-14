@@ -21,6 +21,10 @@ def prepare():
     (PACKAGE/'lean-toolchain').write_bytes((ROOT/'lean-toolchain').read_bytes())
     (PACKAGE/'lakefile.toml').write_text('''name = "kernel-tests"
 version = "0.1.0"
+[[require]]
+name = "LeanAsm"
+git = "https://github.com/NyxFoundation/LeanAsm"
+rev = "f8be877a3018dd4338589a00f41d76d1b36a1876"
 [[lean_lib]]
 name = "Libp2pAsm"
 [[lean_lib]]

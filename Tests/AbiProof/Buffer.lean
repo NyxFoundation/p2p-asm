@@ -32,16 +32,16 @@ theorem fixture_invocation (f : Fixture) :
   refine ⟨⟨?_, by decide, by decide, by decide, ?_⟩,
     ⟨by decide, by decide, ?_, ?_⟩, CodeSlice.refl _⟩
   · change (heap 131072 (metadata f) true [⟨196608, Array.replicate 16 0xcc, true⟩]).valid = true
-    simp only [Memory.valid, Bool.and_eq_true]
+    simp only [LeanAsm.Rv64.Memory.valid, Bool.and_eq_true]
     constructor
     · rw [Array.all_eq_true]
       intro i hi
       have he : i = 0 ∨ i = 1 := by change i < 2 at hi; omega
-      rcases he with rfl | rfl <;> simp [heap, Region.valid, Region.endAddr, metadata_size]
-    · simp [heap, Region.disjoint, Region.endAddr, metadata_size]
+      rcases he with rfl | rfl <;> simp [heap, LeanAsm.Rv64.Region.valid, LeanAsm.Rv64.Region.endAddr, metadata_size]
+    · simp [heap, LeanAsm.Rv64.Region.disjoint, LeanAsm.Rv64.Region.endAddr, metadata_size]
   · intro r hr hw
     simp [entry, heap] at hr
-    rcases hr with rfl | rfl <;> left <;> simp [Region.endAddr, metadata_size, relocated]
+    rcases hr with rfl | rfl <;> left <;> simp [LeanAsm.Rv64.Region.endAddr, metadata_size, relocated]
   · simp [entry, getReg_setReg]
   · right
     change 524288 + 4*program.code.size ≤ 524800

@@ -48,7 +48,7 @@ theorem content_returns (kind cap : Word) (data : List UInt8)
   have hs : 32≤data.length ∧ data.length≤33 := by omega
   have hm : (content kind cap data).memory.valid=true := by
     change (heap 131073 (Array.replicate 42 0xcc) true (frame data)).valid=true
-    simp [heap,frame,Memory.valid,Array.all_eq_true,Region.valid,Region.endAddr,Region.disjoint]
+    simp [heap,frame,LeanAsm.Rv64.Memory.valid,Array.all_eq_true,LeanAsm.Rv64.Region.valid,LeanAsm.Rv64.Region.endAddr,LeanAsm.Rv64.Region.disjoint]
     omega
   have hv := invocation (content kind cap data) hm
     (by intro r hr hw; simp [content,entry,heap,frame] at hr

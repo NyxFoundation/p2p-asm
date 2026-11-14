@@ -17,7 +17,7 @@ theorem unsigned_decode_runUntil (bytes padding : List UInt8) (base : Word)
       done.state.pc = 0 ∧ DecodePost (Spec.Codec.UnsignedVarint.decode bytes) done.state ∧
       done.state.memory = s.memory ∧ PreservesCallee s done.state := by
   have hmem : s.memory.valid = true := by
-    simp only [Program.valid, Bool.and_eq_true] at hv
+    simp only [LeanAsm.Rv64.Image.valid, Bool.and_eq_true] at hv
     exact hv.1.1
   have hread : Reads s.memory (s.getReg .x10) bytes := by
     rw [hm, hptr]

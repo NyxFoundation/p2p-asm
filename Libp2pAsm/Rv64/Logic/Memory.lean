@@ -7,11 +7,12 @@ namespace Libp2pAsm.Rv64.Logic
 
 /-- An owned byte array and an arbitrary disjoint frame of other regions. -/
 def heap (base : Word) (bytes : Array UInt8) (writable : Bool) (frame : List Region) : Memory :=
-  ⟨(⟨base, bytes, writable⟩ :: frame).toArray⟩
+  LeanAsm.Rv64.Memory.mk
+    ((LeanAsm.Rv64.Region.mk base bytes writable :: frame).toArray)
 
 theorem heap_valid_congr (base : Word) (a b : Array UInt8) (w : Bool) (frame : List Region)
     (h : a.size = b.size) : (heap base a w frame).valid = (heap base b w frame).valid := by
-  simp [heap, Memory.valid, Region.valid, Region.disjoint, Region.endAddr, h,
+  simp [heap, LeanAsm.Rv64.Memory.valid, LeanAsm.Rv64.Region.valid, LeanAsm.Rv64.Region.disjoint, LeanAsm.Rv64.Region.endAddr, h,
     List.pairwise_cons, Bool.decide_and]
 
 theorem heap_load_byte (base addr : Word) (bytes : Array UInt8) (w : Bool) (frame : List Region)
@@ -19,15 +20,13 @@ theorem heap_load_byte (base addr : Word) (bytes : Array UInt8) (w : Bool) (fram
     (hb : base.toNat ≤ addr.toNat) (hi : addr.toNat - base.toNat < bytes.size) :
     (heap base bytes w frame).load 1 addr =
       .ok (BitVec.ofNat 64 bytes[addr.toNat - base.toNat].toNat) := by
-  unfold Memory.load
-  unfold_internal Libp2pAsm.Rv64.Memory.locate
-  unfold_internal Libp2pAsm.Rv64.supportedWidth
-  simp only [hv]
-  have hc : (Region.mk base bytes w).contains 1 addr = true := by
-    simp [Region.contains, hb]; omega
+  unfold LeanAsm.Rv64.Memory.load LeanAsm.Rv64.Memory.locate
+  simp only [hv, LeanAsm.Rv64.supportedWidth]
+  have hc : (LeanAsm.Rv64.Region.mk base bytes w).contains 1 addr = true := by
+    simp [LeanAsm.Rv64.Region.contains, hb]; omega
   simp [Nat.mod_one, heap, List.findIdx?_toArray, List.findIdx?_cons, hc,
     bind, Except.bind, pure, Except.pure]
-  unfold_internal Libp2pAsm.Rv64.readBytes
+  unfold LeanAsm.Rv64.readBytes
   simp [List.range_succ, hi, bind, Except.bind, pure, Except.pure]
 
 theorem heap_store_byte (base addr value : Word) (bytes : Array UInt8) (frame : List Region)
@@ -35,15 +34,13 @@ theorem heap_store_byte (base addr value : Word) (bytes : Array UInt8) (frame : 
     (hb : base.toNat ≤ addr.toNat) (hi : addr.toNat - base.toNat < bytes.size) :
     (heap base bytes true frame).store 1 addr value =
       .ok (heap base (bytes.set (addr.toNat - base.toNat) value.toNat.toUInt8) true frame) := by
-  unfold Memory.store
-  unfold_internal Libp2pAsm.Rv64.Memory.locate
-  unfold_internal Libp2pAsm.Rv64.supportedWidth
-  simp only [hv]
-  have hc : (Region.mk base bytes true).contains 1 addr = true := by
-    simp [Region.contains, hb]; omega
+  unfold LeanAsm.Rv64.Memory.store LeanAsm.Rv64.Memory.locate
+  simp only [hv, LeanAsm.Rv64.supportedWidth]
+  have hc : (LeanAsm.Rv64.Region.mk base bytes true).contains 1 addr = true := by
+    simp [LeanAsm.Rv64.Region.contains, hb]; omega
   simp [Nat.mod_one, heap, List.findIdx?_toArray, List.findIdx?_cons, hc,
     bind, Except.bind, pure, Except.pure]
-  unfold_internal Libp2pAsm.Rv64.writeBytes
+  unfold LeanAsm.Rv64.writeBytes
   simp [List.range_succ, hi, bind, Except.bind, pure, Except.pure]
 
 /-- Byte stores keep the permissions, addresses, lengths, and all other regions. -/

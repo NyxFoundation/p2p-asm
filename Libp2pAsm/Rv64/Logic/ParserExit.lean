@@ -63,7 +63,7 @@ theorem error_slice (whole : Program) (pc : Word) (start : Nat) (status : Fin 9)
     have h := relocate_proofEntry (exitProgram status) (atPC s pc) pc rfl rfl
     simp only [getReg_atPC,hra,proofEntry,setReg_atPC,atPC_atPC] at h
     have hz : s.setReg .x1 0=s := by
-      have hz : s.setReg .x1 (s.getReg .x1)=s := by simp [State.setReg,State.getReg,Reg.toNat]
+      have hz : s.setReg .x1 (s.getReg .x1)=s := by simp [LeanAsm.Rv64.State.setReg,LeanAsm.Rv64.State.getReg,LeanAsm.Rv64.Reg.toNat]
       simpa only [hra] using hz
     simpa only [hz] using h
   rw [hstart] at hread hwrite

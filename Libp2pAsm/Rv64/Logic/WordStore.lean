@@ -19,15 +19,15 @@ theorem heap_store_word (base addr value : Word) (bytes : Array UInt8) (frame : 
     (hi : addr.toNat - base.toNat + 8 ≤ bytes.size) :
     (heap base bytes true frame).store 8 addr value =
       .ok (heap base (writeLE64 bytes (addr.toNat-base.toNat) value) true frame) := by
-  unfold Memory.store
-  unfold_internal Libp2pAsm.Rv64.Memory.locate
-  unfold_internal Libp2pAsm.Rv64.supportedWidth
+  unfold LeanAsm.Rv64.Memory.store
+  unfold LeanAsm.Rv64.Memory.locate
+  unfold LeanAsm.Rv64.supportedWidth
   simp only [hv]
-  have hc : (Region.mk base bytes true).contains 8 addr = true := by
-    simp [Region.contains, hb]; omega
+  have hc : (LeanAsm.Rv64.Region.mk base bytes true).contains 8 addr = true := by
+    simp [LeanAsm.Rv64.Region.contains, hb]; omega
   simp [ha, heap, List.findIdx?_toArray, List.findIdx?_cons, hc,
     bind, Except.bind, pure, Except.pure]
-  unfold_internal Libp2pAsm.Rv64.writeBytes
+  unfold LeanAsm.Rv64.writeBytes
   have h0 : addr.toNat-base.toNat < bytes.size := by omega
   have h1 : addr.toNat-base.toNat+1 < bytes.size := by omega
   have h2 : addr.toNat-base.toNat+2 < bytes.size := by omega

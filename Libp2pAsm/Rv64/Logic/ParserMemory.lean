@@ -30,17 +30,17 @@ theorem byte_locate {m : Memory} {addr : Word} {index : Nat}
     m.regions.findIdx? (fun r => r.contains 1 addr) = some index := by
   apply Array.findIdx?_eq_some_iff_getElem.mpr
   refine ⟨hp, ?_, ?_⟩
-  · simp [Region.contains, hl]; omega
+  · simp [LeanAsm.Rv64.Region.contains, hl]; omega
   · intro j hj hc
     have hdis : (m.regions[j]'(by omega)).disjoint (m.regions[index]'hp) := by
-      have pair : m.regions.toList.Pairwise Region.disjoint := by
-        simp only [Memory.valid, Bool.and_eq_true, decide_eq_true_eq] at hv
+      have pair : m.regions.toList.Pairwise LeanAsm.Rv64.Region.disjoint := by
+        simp only [LeanAsm.Rv64.Memory.valid, Bool.and_eq_true, decide_eq_true_eq] at hv
         exact hv.2
       have hh := List.pairwise_iff_getElem.mp pair j index
         (by simpa using Nat.lt_trans hj hp) (by simpa using hp) hj
       simpa only [Array.getElem_toList] using hh
-    simp only [Region.contains, decide_eq_true_eq] at hc
-    unfold Region.disjoint Region.endAddr at hdis
+    simp only [LeanAsm.Rv64.Region.contains, decide_eq_true_eq] at hc
+    unfold LeanAsm.Rv64.Region.disjoint LeanAsm.Rv64.Region.endAddr at hdis
     omega
 
 theorem BytesAt.reads {m ptr bytes} (h : BytesAt m ptr bytes) (hv : m.valid = true) :
@@ -58,12 +58,12 @@ theorem BytesAt.reads {m ptr bytes} (h : BytesAt m ptr bytes) (hv : m.valid = tr
     (show m.regions[index].base.toNat ≤ (ptr+BitVec.ofNat 64 i).toNat by omega)
     (show (ptr+BitVec.ofNat 64 i).toNat-m.regions[index].base.toNat <
       m.regions[index].bytes.size by omega)
-  unfold Memory.load
-  unfold_internal Libp2pAsm.Rv64.Memory.locate
-  unfold_internal Libp2pAsm.Rv64.supportedWidth
+  unfold LeanAsm.Rv64.Memory.load
+  unfold LeanAsm.Rv64.Memory.locate
+  unfold LeanAsm.Rv64.supportedWidth
   simp only [hv, Nat.mod_one, hf, h.present]
   simp [bind, Except.bind, pure, Except.pure, hp, ha]
-  unfold_internal Libp2pAsm.Rv64.readBytes
+  unfold LeanAsm.Rv64.readBytes
   have he : ptr.toNat+i-m.regions[index].base.toNat =
       ptr.toNat-m.regions[index].base.toNat+i := by omega
   simp [List.range_succ, ha, he, h.present, h.contents i hi,
