@@ -11,31 +11,31 @@ def wipeState (s : State) (status : BitVec 12) : State :=
     (fun t r => (t.setReg r 0).advance) ((s.setReg .x10 (status.signExtend 64)).advance))
 
 private theorem execute_clears (rs : List Reg) (s : State) :
-    execSequence (rs.map (fun r => Instr.ADDI r .x0 0)) s =
+    execSequence (rs.map (fun r => LeanAsm.Rv64.Instr.ADDI r .x0 0)) s =
       .ok (rs.foldl (fun t r => (t.setReg r 0).advance) s) := by
   induction rs generalizing s with
   | nil => rfl
   | cons r rs ih =>
     change (execInstr (.ADDI r .x0 0) s).bind
-      (fun t => execSequence (rs.map (fun r => Instr.ADDI r .x0 0)) t) = _
+      (fun t => execSequence (rs.map (fun r => LeanAsm.Rv64.Instr.ADDI r .x0 0)) t) = _
     have first : execInstr (.ADDI r .x0 0) s = .ok ((s.setReg r 0).advance) := by
       simp [execInstr, writeReg]
     rw [first]
     exact ih ((s.setReg r 0).advance)
 
 private theorem execute_status_clears (rs : List Reg) (s : State) (status : BitVec 12) :
-    execSequence (Instr.ADDI .x10 .x0 status :: rs.map (fun r => Instr.ADDI r .x0 0)) s =
+    execSequence (LeanAsm.Rv64.Instr.ADDI .x10 .x0 status :: rs.map (fun r => LeanAsm.Rv64.Instr.ADDI r .x0 0)) s =
       .ok (rs.foldl (fun t r => (t.setReg r 0).advance)
         ((s.setReg .x10 (status.signExtend 64)).advance)) := by
   change (execInstr (.ADDI .x10 .x0 status) s).bind
-    (fun t => execSequence (rs.map (fun r => Instr.ADDI r .x0 0)) t) = _
+    (fun t => execSequence (rs.map (fun r => LeanAsm.Rv64.Instr.ADDI r .x0 0)) t) = _
   have first : execInstr (.ADDI .x10 .x0 status) s =
       .ok ((s.setReg .x10 (status.signExtend 64)).advance) := by simp [execInstr, writeReg]
   rw [first]
   exact execute_clears rs ((s.setReg .x10 (status.signExtend 64)).advance)
 
 theorem execute_status_and_wipe (s : State) (status : BitVec 12) :
-    execSequence (Instr.ADDI .x10 .x0 status :: clearTemps) s = .ok (wipeState s status) := by
+    execSequence (LeanAsm.Rv64.Instr.ADDI .x10 .x0 status :: clearTemps) s = .ok (wipeState s status) := by
   exact execute_status_clears (Asm.Crypto.Sha2.cleared.filter (· != .x10)) s status
 
 /-- The entire straight-line success/failure exit prefix occurs in the ACTUAL

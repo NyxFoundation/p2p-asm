@@ -1,6 +1,16 @@
 {"version": "1.2.0",
  "packagesDir": ".lake/packages",
- "packages": [],
+ "packages":
+ [{"url": "https://github.com/NyxFoundation/LeanAsm",
+   "type": "git",
+   "subDir": null,
+   "scope": "",
+   "rev": "f8be877a3018dd4338589a00f41d76d1b36a1876",
+   "name": "LeanAsm",
+   "manifestFile": "lake-manifest.json",
+   "inputRev": "f8be877a3018dd4338589a00f41d76d1b36a1876",
+   "inherited": false,
+   "configFile": "lakefile.toml"}],
  "name": "«libp2p-asm»",
  "lakeDir": ".lake",
  "fixedToolchain": false}

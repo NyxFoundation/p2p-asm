@@ -30,7 +30,7 @@ def proofEntry (s : State) : State := atPC (s.setReg .x1 0) 65536
 
 theorem setReg_ra_restore (s : State) :
     (s.setReg .x1 0).setReg .x1 (s.getReg .x1) = s := by
-  simp [State.setReg, State.getReg, Reg.toNat]
+  simp [LeanAsm.Rv64.State.setReg, LeanAsm.Rv64.State.getReg, LeanAsm.Rv64.Reg.toNat]
 
 theorem relocate_proofEntry (p : Program) (s : State) (base : Word)
     (hp : p.base = 65536) (hpc : s.pc = base) :

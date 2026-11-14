@@ -10,6 +10,10 @@ def WritesWithin (lo hi : Nat) (i : Instr) (s : State) : Prop :=
       (s.getReg a + off.signExtend 64).toNat + 1 ≤ hi
   | .SD a _ off => lo ≤ (s.getReg a + off.signExtend 64).toNat ∧
       (s.getReg a + off.signExtend 64).toNat + 8 ≤ hi
+  | .SH a _ off => lo ≤ (s.getReg a + off.signExtend 64).toNat ∧
+      (s.getReg a + off.signExtend 64).toNat + 2 ≤ hi
+  | .SW a _ off => lo ≤ (s.getReg a + off.signExtend 64).toNat ∧
+      (s.getReg a + off.signExtend 64).toNat + 4 ≤ hi
   | _ => True
 
 /-- A fetch/execute trace with a checked address bound at every store. -/
@@ -52,7 +56,20 @@ theorem WriteTrace.prefix_store {p stop lo hi n s t} (h : WriteTrace p stop lo h
       exact ih (by omega) tail hf
 
 theorem WritesWithin.empty {lo i s} (h : WritesWithin lo lo i s) : writesMemory i = false := by
-  cases i <;> simp_all [WritesWithin, writesMemory] <;> omega
+  cases i
+  case SB rs1 rs2 off =>
+    simp only [WritesWithin, writesMemory, Bool.not_eq_true] at h ⊢
+    omega
+  case SD rs1 rs2 off =>
+    simp only [WritesWithin, writesMemory, Bool.not_eq_true] at h ⊢
+    omega
+  case SH rs1 rs2 off =>
+    simp only [WritesWithin, writesMemory, Bool.not_eq_true] at h ⊢
+    omega
+  case SW rs1 rs2 off =>
+    simp only [WritesWithin, writesMemory, Bool.not_eq_true] at h ⊢
+    omega
+  all_goals simp [writesMemory]
 
 /-- An empty write interval rules out every store, even a store of the previous value. -/
 theorem WriteTrace.empty_no_stores {p stop lo n s t} (h : WriteTrace p stop lo lo n s t)

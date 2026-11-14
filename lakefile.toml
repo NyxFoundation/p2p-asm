@@ -2,6 +2,11 @@ name = "libp2p-asm"
 version = "0.1.0"
 defaultTargets = ["Libp2pAsm", "libp2p-asm-tests", "libp2p-asm-codegen", "libp2p-asm-isa-probe", "Tests.Axioms"]
 
+[[require]]
+name = "LeanAsm"
+git = "https://github.com/NyxFoundation/LeanAsm"
+rev = "f8be877a3018dd4338589a00f41d76d1b36a1876"
+
 [[lean_lib]]
 name = "Libp2pAsm"
 

@@ -1,5 +1,5 @@
 ---
-title: libp2p-asm 設計
+title: p2p-asm 設計
 last_updated: 2026-11-06
 tags:
   - design
@@ -10,7 +10,7 @@ tags:
   - formal-verification
 ---
 
-# libp2p-asm 設計
+# p2p-asm 設計
 
 ## 1. 状態と合意事項
 

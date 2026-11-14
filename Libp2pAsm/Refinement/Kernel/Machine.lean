@@ -21,7 +21,7 @@ Fetch/return and the entire registry operation are separate obligations. -/
 theorem generation_sequence (s : State) :
     execSequence Asm.Kernel.generationCode s = .ok (generationPost s) := by
   simp [Asm.Kernel.generationCode,execSequence,execInstr,writeReg,Bind.bind,Except.bind,generationPost,increment,
-    State.getReg,State.setReg,State.advance,Reg.toNat]
+    LeanAsm.Rv64.State.getReg,LeanAsm.Rv64.State.setReg,LeanAsm.Rv64.State.advance,LeanAsm.Rv64.Reg.toNat]
   rfl
 
 theorem increment_has_no_wrap (g : Word) :

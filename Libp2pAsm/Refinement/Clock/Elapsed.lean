@@ -91,7 +91,8 @@ theorem product_prefix (s : State) (base seconds nanos factor after before drift
   case trace =>
     repeat clock_read_step
     exact .nil _
-  all_goals simp_all [DifferenceReady, highWith, lowWith, getReg_setReg]
+  all_goals simp_all [DifferenceReady, highWith, lowWith, getReg_setReg,
+    LeanAsm.Rv64.mulhu_nat]
 
 theorem elapsed_words_prefix (s : State) (old : RawState) (sample : RawSample) (base factor drift : Word)
     (hbase : s.getReg .x5 = base) (hold : s.getReg .x7 = old.afterNs)

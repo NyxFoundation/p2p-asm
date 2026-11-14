@@ -6,7 +6,7 @@ open Rv64
 /-- 0=success; 1=key length; 2=block length; 3=output capacity;
 4=workspace capacity. Pointer validity/disjointness are caller obligations. -/
 def finish (status : Nat) : SAsm.Stmt := sequence [
-  .block ((clearRegs.map fun r => Instr.ADDI r .x0 0) ++ [.ADDI .x10 .x0 (imm status)]), .ret]
+  .block ((clearRegs.map fun r => LeanAsm.Rv64.Instr.ADDI r .x0 0) ++ [.ADDI .x10 .x0 (imm status)]), .ret]
 
 def reject (c : SAsm.Cond) (status : Nat) : SAsm.Stmt :=
   .ite c (finish status) (.block [])

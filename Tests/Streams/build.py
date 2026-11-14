@@ -10,6 +10,10 @@ def compile_probe():
     (p/'lakefile.toml').write_text('''name = "streams-probe-package"
 version = "0.1.0"
 [[require]]
+name = "LeanAsm"
+git = "https://github.com/NyxFoundation/LeanAsm"
+rev = "f8be877a3018dd4338589a00f41d76d1b36a1876"
+[[require]]
 name = "libp2p-asm"
 path = "../../.."
 [[lean_exe]]

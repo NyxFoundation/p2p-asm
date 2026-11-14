@@ -397,7 +397,7 @@ Run `python3 Tests/Kernel/check.py` and `python3 Tests/Kernel/audit.py`.
 Set `QEMU_RISCV64` / `RISCV_PREFIX` or use `--qemu` / `--prefix` when tools are not on
 PATH. The native model is built by Lake in ignored `build/kernel/lake-probe`.
 When this worktree lacks the frozen Limits sources, `KERNEL_FROZEN_ROOT` selects a
-read-only source tree (default sibling `libp2p-asm`); only the ignored package is
+read-only source tree (default sibling `p2p-asm`); only the ignored package is
 written. No shared/frozen source or another worktree is modified.
 Tests compare independent Python states and arithmetic, pure Lean Specs, full fetched
 RV64 instruction registers/memory/footprints, GNU byte equality, GNU-assembled QEMU,

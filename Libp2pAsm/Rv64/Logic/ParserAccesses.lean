@@ -6,6 +6,8 @@ def stores (i : Instr) (s : State) : List (Nat × Word) :=
   match i with
   | .SB a _ off => [(1,s.getReg a+off.signExtend 64)]
   | .SD a _ off => [(8,s.getReg a+off.signExtend 64)]
+  | .SH a _ off => [(2,s.getReg a+off.signExtend 64)]
+  | .SW a _ off => [(4,s.getReg a+off.signExtend 64)]
   | _ => []
 
 /-- An exact pair of actual load and store sequences, with no erased same-value stores. -/
@@ -78,7 +80,7 @@ theorem ReadTrace.noStores {p stop reads n s t} (h : ReadTrace p stop reads n s 
 
 theorem stores_remap {f : Word → Word} {ra : Word} {i : Instr} {s : State}
     (hl : LeafInstr i) : stores i (remap f ra s)=stores i s := by
-  cases i <;> simp only [stores] <;> try rfl
+  cases i <;> (try exact False.elim hl) <;> simp only [stores] <;> try rfl
   all_goals rw [remap_get _ _ _ _ hl.1]
 
 theorem AccessTrace.relocate {p : Program} {base ra : Word} {reads writes n s t}

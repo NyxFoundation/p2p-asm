@@ -13,7 +13,7 @@ def prepare():
         for p in (ROOT/part).rglob('*.lean'):
             dst=PACKAGE/p.relative_to(ROOT);dst.parent.mkdir(parents=True,exist_ok=True)
             if not dst.exists() or dst.read_bytes()!=p.read_bytes(): shutil.copyfile(p,dst)
-    policy=Path(os.environ.get('KERNEL_FROZEN_ROOT',str(ROOT.parent/'libp2p-asm')))
+    policy=Path(os.environ.get('KERNEL_FROZEN_ROOT',str(ROOT.parent/'p2p-asm')))
     for rel in ('Libp2pAsm/Spec/Limits.lean','Libp2pAsm/Spec/Limits/Types.lean'):
         src=ROOT/rel if (ROOT/rel).exists() else policy/rel
         dst=PACKAGE/rel;dst.parent.mkdir(parents=True,exist_ok=True)
@@ -21,6 +21,10 @@ def prepare():
     (PACKAGE/'lean-toolchain').write_bytes((ROOT/'lean-toolchain').read_bytes())
     (PACKAGE/'lakefile.toml').write_text('''name = "kernel-tests"
 version = "0.1.0"
+[[require]]
+name = "LeanAsm"
+git = "https://github.com/NyxFoundation/LeanAsm"
+rev = "f8be877a3018dd4338589a00f41d76d1b36a1876"
 [[lean_lib]]
 name = "Libp2pAsm"
 [[lean_lib]]

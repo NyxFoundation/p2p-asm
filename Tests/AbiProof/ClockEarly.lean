@@ -25,12 +25,12 @@ theorem invocation (old : RawState) (drift span : Word) :
   refine ⟨⟨?_, by decide, by decide, by decide, ?_⟩,
     ⟨by decide, by decide, ?_, ?_⟩, CodeSlice.refl _⟩
   · change (heap 131072 (bytes old) true []).valid = true
-    simp [Memory.valid, heap, Region.valid, Region.endAddr, bytes_size]
+    simp [LeanAsm.Rv64.Memory.valid, heap, LeanAsm.Rv64.Region.valid, LeanAsm.Rv64.Region.endAddr, bytes_size]
   · intro r hr hw
     simp [entry, heap] at hr
     subst r
     left
-    simp [Region.endAddr, bytes_size, relocated]
+    simp [LeanAsm.Rv64.Region.endAddr, bytes_size, relocated]
   · simp [entry, getReg_setReg]
   · right
     change 524288+4*program.code.size ≤ 525104

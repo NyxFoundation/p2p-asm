@@ -1,9 +1,12 @@
-# libp2p-asm
+# p2p-asm
 
 Lean 4で構造化アセンブリを定義し、RV64IM命令列として実行・検証する
-libp2p実装を目指すプロジェクトです。
+P2Pスタック実装を目指すプロジェクトです。Lean package namespaceと既存の
+実行ファイル名は互換性のため当面 `Libp2pAsm` / `libp2p-asm-*` を維持します。
 [evm-asm](https://github.com/Verified-zkEVM/evm-asm)の検証付きマクロアセンブラに
-着想を得ています。**zkVMを使用するプロジェクトではありません。**
+着想を得ています。共通RV64基盤は
+[LeanAsm](https://github.com/NyxFoundation/LeanAsm)へ段階的に移行しています。
+**zkVMを使用するプロジェクトではありません。**
 
 ## 現在の状態
 
@@ -14,7 +17,7 @@ varint、buffer resolver、時計判定、protobuf uint64、DER headerには全�
 **完成したQUIC/TLS接続、Peer ID認証、ASM核を使ったPing相互運用はまだありません。**
 
 [実装・検証の台帳](docs/implementation-status.md)、[設計書](docs/design.md)、
-[移植元と信頼境界](docs/provenance.md)を参照してください。
+[LeanAsmとの境界](docs/leanasm.md)、[移植元と信頼境界](docs/provenance.md)を参照してください。
 
 ## 開発時の実行
 

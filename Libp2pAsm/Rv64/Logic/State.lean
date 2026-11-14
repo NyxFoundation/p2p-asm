@@ -39,7 +39,7 @@ def withMemory (s : State) (m : Memory) : State := { s with memory := m }
 
 @[simp] theorem getReg_setReg (s : State) (w r : Reg) (v : Word) :
     (s.setReg w v).getReg r = if r = .x0 then 0 else if r = w then v else s.getReg r := by
-  cases w <;> cases r <;> simp [State.getReg, State.setReg, Reg.toNat]
+  cases w <;> cases r <;> simp [LeanAsm.Rv64.State.getReg, LeanAsm.Rv64.State.setReg, LeanAsm.Rv64.Reg.toNat]
 
 /-- Integer registers which a codec must preserve under the RISC-V ABI. -/
 def CalleeSaved (r : Reg) : Prop :=

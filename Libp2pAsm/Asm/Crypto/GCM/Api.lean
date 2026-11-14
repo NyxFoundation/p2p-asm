@@ -26,7 +26,7 @@ def validate (opening : Bool) : SAsm.Stmt := sequence [
 /-- Validation leaves the checked message length in x6. Initialize every
 owned frame slot; save descriptor/public pointers and lengths only. -/
 def enter : SAsm.Stmt := .block <|
-  [.ADDI .x2 .x2 (-128)] ++ (List.range 16).map (fun i => Instr.SD .x2 .x0 (imm (8*i))) ++
+  [.ADDI .x2 .x2 (-128)] ++ (List.range 16).map (fun i => LeanAsm.Rv64.Instr.SD .x2 .x0 (imm (8*i))) ++
   [.SD .x2 .x10 0, .SD .x2 .x6 88, .LD .x5 .x10 80, .SD .x2 .x5 8,
    .LD .x5 .x10 16, .SD .x2 .x5 56, .LD .x5 .x10 48, .SD .x2 .x5 64,
    .LD .x5 .x10 64, .SD .x2 .x5 72, .LD .x5 .x10 40, .SD .x2 .x5 80,
@@ -35,8 +35,8 @@ def enter : SAsm.Stmt := .block <|
 def leave : SAsm.Stmt := sequence [
   .block [.LD .x12 .x2 8], AES.wipe .x12 workspaceBytes,
   .block ([.LD .x10 .x2 120] ++
-    (List.range 16).map (fun i => Instr.SD .x2 .x0 (imm (8*i))) ++
-    [.ADDI .x2 .x2 128] ++ AES.clearRegs.map (fun r => Instr.ADDI r .x0 0)), .ret]
+    (List.range 16).map (fun i => LeanAsm.Rv64.Instr.SD .x2 .x0 (imm (8*i))) ++
+    [.ADDI .x2 .x2 128] ++ AES.clearRegs.map (fun r => LeanAsm.Rv64.Instr.ADDI r .x0 0)), .ret]
 
 /-- AES-128-GCM leaf ABI: a0 points to an 8-aligned immutable 96-byte descriptor:
 LE64 slots key pointer, key length, nonce pointer, nonce length, AAD pointer,

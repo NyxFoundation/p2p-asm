@@ -21,6 +21,7 @@ def LeafInstr : Instr → Prop
   | .JAL d _ => d = .x0
   | .JALR d a off => d = .x0 ∧ a = .x1 ∧ off = 0
   | .AUIPC .. => False
+  | _ => False
 
 instance (i : Instr) : Decidable (LeafInstr i) := by cases i <;> unfold LeafInstr <;> infer_instance
 
@@ -98,6 +99,11 @@ theorem execInstr_remap {f : Word → Word} {ra : Word} {s t : State} {i : Instr
   | JALR d a off =>
     rcases hi with ⟨rfl, rfl, rfl⟩
     exact remap_return hzero ha hr he
+  | ADDW d a b | SUBW d a b | MULH d a b | MULHSU d a b
+  | DIV d a b | REM d a b | SLTI d a off | SLTIU d a off
+  | ADDIW d a off | SLLIW d a off | SRLIW d a off | FENCE =>
+    exact False.elim hi
   | AUIPC _ _ => exact False.elim hi
+  | _ => exact False.elim hi
 
 end Libp2pAsm.Rv64.Logic

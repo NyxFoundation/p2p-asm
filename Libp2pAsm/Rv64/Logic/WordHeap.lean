@@ -4,7 +4,7 @@ namespace Libp2pAsm.Rv64.Logic
 
 theorem heap_bounded {base : Word} {bytes : Array UInt8} {w : Bool} {frame : List Region}
     (hv : (heap base bytes w frame).valid = true) : base.toNat+bytes.size ≤ 2^64 := by
-  simp only [heap, Memory.valid, Bool.and_eq_true, Array.all_eq_true] at hv
+  simp only [heap, LeanAsm.Rv64.Memory.valid, Bool.and_eq_true, Array.all_eq_true] at hv
   have hh := hv.1 0 (by simp)
   change decide (0 < bytes.size ∧ base.toNat+bytes.size ≤ 2^64) = true at hh
   exact (of_decide_eq_true hh).2

@@ -30,7 +30,7 @@ theorem content_valid (bytes : List UInt8) (hb : bytes.length ≤ 10) :
     Invocation program image 524292 ((content bytes).getReg .x1) 1 (content bytes).memory := by
   apply invocation
   · change (heap 131073 (bytes++[0xcc]).toArray false []).valid=true
-    simp [heap,Memory.valid,Region.valid,Region.endAddr]; omega
+    simp [heap,LeanAsm.Rv64.Memory.valid,LeanAsm.Rv64.Region.valid,LeanAsm.Rv64.Region.endAddr]; omega
   · intro r hr; simp [content,entry,heap] at hr; subst r; rfl
   · rfl
 

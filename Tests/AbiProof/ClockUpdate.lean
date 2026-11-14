@@ -42,16 +42,16 @@ theorem invocation (f : Fixture) :
   refine ⟨⟨?_, by decide, by decide, by decide, ?_⟩,
     ⟨by decide, by decide, ?_, ?_⟩, CodeSlice.refl _⟩
   · change (heap 131072 (stateBytes f) true (frame f)).valid = true
-    simp only [Memory.valid, Bool.and_eq_true]
+    simp only [LeanAsm.Rv64.Memory.valid, Bool.and_eq_true]
     constructor
     · rw [Array.all_eq_true]
       intro i hi
       have he : i = 0 ∨ i = 1 ∨ i = 2 := by change i < 3 at hi; omega
-      rcases he with rfl | rfl | rfl <;> simp [heap, frame, Region.valid, Region.endAddr, stateBytes_size, sampleBytes_size]
-    · simp [heap, frame, Region.disjoint, Region.endAddr, stateBytes_size, sampleBytes_size]
+      rcases he with rfl | rfl | rfl <;> simp [heap, frame, LeanAsm.Rv64.Region.valid, LeanAsm.Rv64.Region.endAddr, stateBytes_size, sampleBytes_size]
+    · simp [heap, frame, LeanAsm.Rv64.Region.disjoint, LeanAsm.Rv64.Region.endAddr, stateBytes_size, sampleBytes_size]
   · intro r hr hw
     simp [entry, heap, frame] at hr
-    rcases hr with rfl | rfl | rfl <;> left <;> simp [Region.endAddr, stateBytes_size, sampleBytes_size, relocated]
+    rcases hr with rfl | rfl | rfl <;> left <;> simp [LeanAsm.Rv64.Region.endAddr, stateBytes_size, sampleBytes_size, relocated]
   · simp [entry, getReg_setReg]
   · right
     change 524288+4*program.code.size ≤ 525104
