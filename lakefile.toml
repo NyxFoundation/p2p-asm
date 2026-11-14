@@ -5,7 +5,7 @@ defaultTargets = ["Libp2pAsm", "libp2p-asm-tests", "libp2p-asm-codegen", "libp2p
 [[require]]
 name = "LeanAsm"
 git = "https://github.com/NyxFoundation/LeanAsm"
-rev = "f8be877a3018dd4338589a00f41d76d1b36a1876"
+rev = "c55ebfef6eb0a44149deb4110654f71f4fd35543"
 
 [[lean_lib]]
 name = "Libp2pAsm"
@@ -20,6 +20,10 @@ root = "Tests.Main"
 [[lean_exe]]
 name = "libp2p-asm-codegen"
 root = "Main"
+
+[[lean_exe]]
+name = "libp2p-asm-x64-probe"
+root = "Tests.X64.Probe"
 
 [[lean_exe]]
 name = "libp2p-asm-isa-probe"

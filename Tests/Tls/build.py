@@ -20,7 +20,7 @@ def build():
     directory.mkdir(parents=True, exist_ok=True)
     (directory / 'lakefile.lean').write_text('''import Lake
 open Lake DSL
-require LeanAsm from git "https://github.com/NyxFoundation/LeanAsm" @ "f8be877a3018dd4338589a00f41d76d1b36a1876"
+require LeanAsm from git "https://github.com/NyxFoundation/LeanAsm" @ "c55ebfef6eb0a44149deb4110654f71f4fd35543"
 package tlsTests where
   srcDir := "../../../.."
   buildDir := "../lake"

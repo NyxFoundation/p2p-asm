@@ -17,7 +17,7 @@ def main (args : List String) : IO Unit := do
   let .ok bytes := encodeProgram code | throw (IO.userError "encode")
   IO.FS.writeFile (dir / "protocol.S") (Codegen.assembly code)
   IO.FS.writeBinFile (dir / "encoded.bin") bytes
-  AsmCrypto.check "code/mapping separation" ((Program.mk 0x10000 code).valid c.start.memory)
+  AsmCrypto.check "code/mapping separation" ((⟨0x10000, code⟩ : Program).valid c.start.memory)
   let limits := if kind == "init" then
       (⟨input[5]!,input[6]!,input[7]!,input[8]!,input[9]!,input[10]!,input[11]!,input[12]!,input[13]!,input[14]!,input[15]!⟩ : Spec.Quic.Recovery.Config)
     else Spec.Quic.Recovery.configFromWords state

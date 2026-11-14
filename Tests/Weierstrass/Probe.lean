@@ -26,7 +26,7 @@ def run (curve kind : String) (dir : System.FilePath) : IO Unit := do
     if kind == "public" || kind == "ecdh" || kind.startsWith "sign" || kind.startsWith "verify" then
       reference c kind f
     let paired := (groups.find? (fun (g,_) => g == f.traceGroup)).map Prod.snd
-    check "valid program/memory" ((Program.mk 0x10000 code).valid start.memory)
+    check "valid program/memory" ((⟨0x10000, code⟩ : Program).valid start.memory)
     let done ← match checkedLoop ⟨0x10000,code⟩ (accessContract kind f) 50000000 start paired 0 with
       | .ok done => pure done
       | .error e => throw (IO.userError s!"{f.label}: {e}")
